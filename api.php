@@ -75,7 +75,7 @@ try {
     }
 
     // Public / Unauthenticated actions
-    $publicActions = ['login', 'setupDatabase', 'getMeta'];
+    $publicActions = ['login', 'setupDatabase', 'getMeta', 'forgotPassword'];
 
     if (!in_array($action, $publicActions)) {
         if (!$currentUser) {
@@ -120,6 +120,7 @@ try {
         case 'login':
         case 'logout':
         case 'changePassword':
+        case 'forgotPassword':
         case 'getMe':
             $response = AuthController::handle($action, $payload, $currentUser);
             break;

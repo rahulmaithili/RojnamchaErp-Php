@@ -86,15 +86,71 @@ function showLoginScreen() {
     };
   }
 
-  // Quick Credential Auto-Fill
-  const quickPill = document.getElementById('login-quick-fill');
-  if (quickPill) {
-    quickPill.onclick = () => {
-      const uEl = document.getElementById('login-username');
-      const pEl = document.getElementById('login-password');
-      if (uEl) uEl.value = 'admin';
-      if (pEl) pEl.value = 'Admin@12345';
-      if (pEl) pEl.focus();
+  // Forgot Password Link Handler
+  const forgotLink = document.getElementById('login-forgot-pwd-link');
+  if (forgotLink) {
+    forgotLink.onclick = async (e) => {
+      e.preventDefault();
+      const uCurrent = document.getElementById('login-username')?.value.trim() || '';
+      const html = `
+        <div style="text-align:left; font-size:13px; line-height:1.5;">
+          <div style="background:#eff6ff; border:1px solid #bfdbfe; border-radius:6px; padding:10px 14px; margin-bottom:14px; color:#1e40af;">
+            <i class="fa-solid fa-shield-halved"></i> <strong>Account Recovery System:</strong><br>
+            Enter your Operator Username and Agency Distributor Code / Master Security PIN to reset your password.
+          </div>
+          <div class="form-group" style="margin-bottom:12px;">
+            <label class="form-label" style="font-weight:700;">Operator Username *</label>
+            <input type="text" id="fp-username" class="form-control" placeholder="e.g. admin" value="${uCurrent}" required>
+          </div>
+          <div class="form-group" style="margin-bottom:12px;">
+            <label class="form-label" style="font-weight:700;">Agency Distributor Code / Master Key *</label>
+            <input type="text" id="fp-code" class="form-control" placeholder="e.g. HP-PDL-8842 or RAHUL2026" required>
+            <small style="color:#64748b; font-size:11px;">Agency Code: <code>HP-PDL-8842</code> or Master Recovery PIN: <code>RAHUL2026</code></small>
+          </div>
+          <div class="form-group" style="margin-bottom:12px;">
+            <label class="form-label" style="font-weight:700;">New Password *</label>
+            <input type="password" id="fp-new-pwd" class="form-control" placeholder="Minimum 6 characters" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" style="font-weight:700;">Confirm New Password *</label>
+            <input type="password" id="fp-confirm-pwd" class="form-control" placeholder="Re-enter new password" required>
+          </div>
+        </div>
+      `;
+
+      const data = await ui.formModal(html, 'Reset Account Password', () => {
+        const u = document.getElementById('fp-username')?.value.trim();
+        const code = document.getElementById('fp-code')?.value.trim();
+        const p1 = document.getElementById('fp-new-pwd')?.value;
+        const p2 = document.getElementById('fp-confirm-pwd')?.value;
+
+        if (!u || !code || !p1) {
+          Swal.showValidationMessage('All fields are required!');
+          return false;
+        }
+        if (p1.length < 6) {
+          Swal.showValidationMessage('New password must be at least 6 characters long!');
+          return false;
+        }
+        if (p1 !== p2) {
+          Swal.showValidationMessage('Passwords do not match! Please check again.');
+          return false;
+        }
+
+        return { username: u, verificationCode: code, newPassword: p1 };
+      }, { maxWidth: '480px' });
+
+      if (data) {
+        const res = await api('forgotPassword', data, { loaderMessage: 'Verifying and resetting password...' });
+        if (res.ok) {
+          ui.success('Password reset successfully! You can now log in with your new password.');
+          const pEl = document.getElementById('login-password');
+          if (pEl) {
+            pEl.value = data.newPassword;
+            pEl.focus();
+          }
+        }
+      }
     };
   }
 

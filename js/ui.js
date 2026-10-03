@@ -158,6 +158,11 @@ export const ui = {
       else if (tLower.includes('purchase') || tLower.includes('inward')) icon = 'fa-cart-flatbed';
       else if (tLower.includes('stock')) icon = 'fa-boxes-stacked';
 
+      const modalContent = modal.querySelector('.modal-content');
+      if (modalContent) {
+        modalContent.style.maxWidth = options.maxWidth || '680px';
+      }
+
       titleEl.innerHTML = `<i class="fa-solid ${icon}"></i> ${title}`;
       bodyEl.innerHTML = htmlContent;
       if (errorBox) errorBox.style.display = 'none';
@@ -166,6 +171,7 @@ export const ui = {
       const cleanup = () => {
         if (isClosed) return;
         isClosed = true;
+        if (modalContent) modalContent.style.maxWidth = '680px';
         modal.style.display = 'none';
         modal.removeEventListener('click', onBackdropClick);
         document.removeEventListener('keydown', onKeyDown);

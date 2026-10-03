@@ -64,12 +64,13 @@ export const dispatchModule = {
                 <th class="text-right">Expected</th>
                 <th class="text-right">Cash Dep.</th>
                 <th class="text-right">UPI</th>
+                <th class="text-left" style="min-width:140px;">HP Pay Delivery</th>
                 <th class="text-right">Shortage / Excess</th>
                 <th class="text-center">Actions</th>
               </tr>
             </thead>
             <tbody id="disp-table-body">
-              <tr><td colspan="11" class="text-center" style="color:var(--text-muted); padding:24px;">Loading dispatch logs...</td></tr>
+              <tr><td colspan="12" class="text-center" style="color:var(--text-muted); padding:24px;">Loading dispatch logs...</td></tr>
             </tbody>
           </table>
         </div>
@@ -110,7 +111,7 @@ export const dispatchModule = {
     if (!res.ok || !res.data || !res.data.length) {
       tbody.innerHTML = `
         <tr>
-          <td colspan="11">
+          <td colspan="12">
             <div class="empty-state">
               <div class="empty-state-icon"><i class="fa-solid fa-truck"></i></div>
               <div class="empty-state-title">No dispatch logs found</div>
@@ -134,6 +135,21 @@ export const dispatchModule = {
         diffHtml = `<span class="num-font" style="color:var(--color-info); font-weight:700;">+${utils.formatCurrency(excess)}</span>`;
       }
 
+      const hpCount = Number(d.HPPayConsumerCount || 0);
+      const hpAmt = Number(d.HPPayDeposited || 0);
+      let hpDetails = d.HPPayConsumerDetails || '';
+      let hpDeliveryHtml = '<span style="color:var(--text-muted);">-</span>';
+      if (hpCount > 0 || hpAmt > 0) {
+        hpDeliveryHtml = `
+          <div>
+            <span class="badge" style="background:#e0f2fe; color:#0369a1; font-weight:700; font-size:11px;">
+              <i class="fa-solid fa-mobile-screen"></i> ${hpCount} Cyl (${utils.formatCurrency(hpAmt)})
+            </span>
+            ${hpDetails ? `<div style="font-family:monospace; font-size:10.5px; color:#0284c7; font-weight:700; margin-top:2px; word-break:break-all;" title="Consumer Nos: ${utils.escapeHtml(hpDetails)}">${utils.escapeHtml(hpDetails)}</div>` : ''}
+          </div>
+        `;
+      }
+
       return `
         <tr>
           <td><strong>${utils.escapeHtml(d.DispatchNumber)}</strong></td>
@@ -145,6 +161,7 @@ export const dispatchModule = {
           <td class="text-right num-font">${utils.formatCurrency(d.ExpectedCollection)}</td>
           <td class="text-right num-font" style="color:var(--color-success);">${utils.formatCurrency(d.CashDeposited)}</td>
           <td class="text-right num-font" style="color:var(--color-info);">${utils.formatCurrency(d.UPIDeposited)}</td>
+          <td class="text-left">${hpDeliveryHtml}</td>
           <td class="text-right">${diffHtml}</td>
           <td class="text-center" style="white-space:nowrap;">
             <div style="display:inline-flex; gap:6px; align-items:center;">
@@ -387,8 +404,8 @@ export const dispatchModule = {
                 <span><i class="fa-solid fa-address-book text-primary"></i> HP Pay Consumer Numbers (Comma or Newline separated)</span>
                 <span id="dm-hppay-badge" class="badge badge-info" style="font-size:11px;">0 Consumers</span>
               </label>
-              <textarea id="dm-hppay-consumers" class="form-control" rows="2" placeholder="e.g. 20019283, 20019284, 20019285 (Auto counts & lists in Rojnamcha)">${existingConsumersText}</textarea>
-              <small style="color:var(--text-muted); font-size:11px;">Enter consumer numbers to automatically compute consumer count, revenue and populate Rojnamcha daily report.</small>
+              <textarea id="dm-hppay-consumers" class="form-control" rows="2" placeholder="e.g. 201452, 201453, 201454 (Enter 6-digit HPCL consumer numbers)">${existingConsumersText}</textarea>
+              <small style="color:var(--text-muted); font-size:11px;">Enter 6-digit HPCL consumer numbers to automatically compute consumer count, revenue and populate Rojnamcha register.</small>
             </div>
           </div>
         </div>

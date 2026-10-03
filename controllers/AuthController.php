@@ -39,6 +39,16 @@ class AuthController {
                 }
                 return ['ok' => true, 'data' => null, 'message' => $res['message']];
 
+            case 'forgotPassword':
+                $userParam = $payload['username'] ?? '';
+                $codeParam = $payload['verificationCode'] ?? '';
+                $newPassParam = $payload['newPassword'] ?? '';
+                $res = Auth::resetForgottenPassword($userParam, $codeParam, $newPassParam);
+                if (!$res['ok']) {
+                    return ['ok' => false, 'error' => ['code' => $res['code'], 'message' => $res['message']]];
+                }
+                return ['ok' => true, 'data' => null, 'message' => $res['message']];
+
             case 'getMe':
                 if (!$user) {
                     return ['ok' => false, 'error' => ['code' => 'AUTH', 'message' => 'Unauthorized.']];

@@ -916,16 +916,16 @@ export const billingModule = {
           </div>
 
           <!-- Dynamic Products Table -->
-          <div style="max-height:220px; overflow-y:auto; border:1px solid var(--border); border-radius:var(--r-sm); background:var(--bg-surface);">
-            <table class="table table-sm" style="margin:0; font-size:12px;">
+          <div style="max-height:380px; overflow-y:auto; overflow-x:hidden; border:1px solid var(--border); border-radius:var(--r-sm); background:var(--bg-surface);">
+            <table class="table table-sm" style="margin:0; font-size:12px; width:100%;">
               <thead>
                 <tr style="background:var(--bg-body);">
-                  <th>Product / Component</th>
-                  <th>Category</th>
-                  <th style="width:70px; text-align:center;">Qty</th>
-                  <th style="width:95px; text-align:right;">Rate (₹)</th>
-                  <th style="width:105px; text-align:right;">Total (₹)</th>
-                  <th style="width:40px; text-align:center;"></th>
+                  <th style="min-width:220px;">Product / Component</th>
+                  <th style="width:130px;">Category</th>
+                  <th style="width:80px; text-align:center;">Qty</th>
+                  <th style="width:110px; text-align:right;">Rate (₹)</th>
+                  <th style="width:110px; text-align:right;">Total (₹)</th>
+                  <th style="width:45px; text-align:center;"></th>
                 </tr>
               </thead>
               <tbody id="sv-pkg-table-body">
@@ -1068,7 +1068,7 @@ export const billingModule = {
           Total: p.Total
         }))
       };
-    });
+    }, { maxWidth: '920px' });
 
     if (resData) {
       const totalPkgAmount = resData.packageItems.reduce((sum, it) => sum + it.Total, 0);
@@ -1459,6 +1459,20 @@ export const billingModule = {
               <small style="color:var(--text-muted); font-size:11px;">Auto-calculated: Rate × Count</small>
             </div>
 
+            <!-- Dynamic 6-Digit HP Pay Consumer Numbers Grid -->
+            <div id="hpos-hppay-consumers-box" style="grid-column:1 / -1; display:none; background:#f0f9ff; border:1px solid #bae6fd; border-radius:6px; padding:12px 14px; margin-top:2px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <label style="font-size:12px; font-weight:700; color:#0369a1; margin:0;">
+                  <i class="fa-solid fa-mobile-screen"></i> HP Pay 6-Digit Consumer Numbers (HPCL Official Format):
+                </label>
+                <span id="hpos-hppay-badge" class="badge" style="background:#0284c7; color:#fff; font-size:11px;">0 / 0 Entered</span>
+              </div>
+              <div id="hpos-hppay-inputs-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(140px, 1fr)); gap:8px;"></div>
+              <div style="font-size:11px; color:#0284c7; margin-top:6px;">
+                <i class="fa-solid fa-circle-info"></i> Enter 6-digit HPCL consumer number for each delivery (e.g. <code>204512</code>). These are recorded in the Daily Rojnamcha.
+              </div>
+            </div>
+
             <div class="form-group">
               <label class="form-label"><i class="fa-solid fa-hand-holding-dollar"></i> Customer Dues Allowed (₹)</label>
               <input type="number" id="hpos-dues" class="form-control num-font" value="0" min="0" step="any">
@@ -1533,12 +1547,60 @@ export const billingModule = {
         }
       };
 
+      const renderHpConsumerInputs = () => {
+        const count = parseInt(hpCountIn?.value) || 0;
+        const box = document.getElementById('hpos-hppay-consumers-box');
+        const grid = document.getElementById('hpos-hppay-inputs-grid');
+        const badge = document.getElementById('hpos-hppay-badge');
+        if (!box || !grid) return;
+
+        if (count <= 0) {
+          box.style.display = 'none';
+          grid.innerHTML = '';
+          return;
+        }
+
+        box.style.display = 'block';
+
+        // Keep existing values if any
+        const existingVals = Array.from(grid.querySelectorAll('.hpos-cno-input')).map(i => i.value.trim());
+
+        let gridHtml = '';
+        for (let i = 0; i < count; i++) {
+          const val = existingVals[i] || '';
+          gridHtml += `
+            <div style="background:#fff; border:1px solid #bae6fd; border-radius:4px; padding:6px 8px;">
+              <label style="font-size:10.5px; font-weight:700; color:#0369a1; display:block; margin-bottom:2px;">Consumer #${i + 1} (6-Digit):</label>
+              <input type="text" class="form-control form-control-sm hpos-cno-input" maxlength="6" pattern="[0-9]{6}" inputmode="numeric" placeholder="e.g. 201452" value="${val}" style="font-family:monospace; font-weight:700; text-align:center; height:28px; font-size:12.5px; letter-spacing:1px;">
+            </div>
+          `;
+        }
+        grid.innerHTML = gridHtml;
+
+        const updateBadge = () => {
+          const filled = Array.from(grid.querySelectorAll('.hpos-cno-input')).filter(i => i.value.trim().length === 6).length;
+          if (badge) {
+            badge.textContent = `${filled} / ${count} Verified (6-Dig)`;
+            badge.style.background = (filled === count) ? '#16a34a' : '#0284c7';
+          }
+        };
+
+        grid.querySelectorAll('.hpos-cno-input').forEach(inp => {
+          inp.addEventListener('input', (e) => {
+            e.target.value = e.target.value.replace(/[^0-9]/g, '');
+            updateBadge();
+          });
+        });
+        updateBadge();
+      };
+
       [rateIn, loadedIn, retFullIn, cashIn, upiIn, duesIn].forEach(el => el?.addEventListener('input', recalc));
 
       hpCountIn?.addEventListener('input', () => {
         const rate = parseFloat(rateIn?.value) || 0;
         const hpCount = parseInt(hpCountIn?.value) || 0;
         if (hpAmtIn) hpAmtIn.value = (hpCount * rate).toFixed(2);
+        renderHpConsumerInputs();
         recalc();
       });
 
@@ -1555,6 +1617,7 @@ export const billingModule = {
         recalc();
       });
 
+      renderHpConsumerInputs();
       recalc();
     }, 150);
 
@@ -1574,6 +1637,15 @@ export const billingModule = {
       const hpCount = parseInt(document.getElementById('hpos-hppay-count').value) || 0;
       const hpAmt = parseFloat(document.getElementById('hpos-hppay-amount').value) || (hpCount * rate);
 
+      const consumerInputs = Array.from(document.querySelectorAll('.hpos-cno-input')).map(i => i.value.trim());
+      if (hpCount > 0) {
+        const valid6Digits = consumerInputs.filter(c => c.length === 6 && /^\d{6}$/.test(c));
+        if (valid6Digits.length < hpCount) {
+          Swal.showValidationMessage(`Please enter all ${hpCount} valid 6-digit HPCL consumer numbers (${valid6Digits.length}/${hpCount} entered)!`);
+          return false;
+        }
+      }
+
       return {
         EmpID: empId,
         Date: document.getElementById('hpos-date').value,
@@ -1587,10 +1659,11 @@ export const billingModule = {
         HPPayConsumerCount: hpCount,
         HPPayRate: rate,
         HPPayDeposited: hpAmt,
+        HPPayConsumerDetails: consumerInputs.join(', '),
         DuesAllowed: parseFloat(document.getElementById('hpos-dues').value) || 0,
         Remarks: document.getElementById('hpos-remarks').value.trim()
       };
-    });
+    }, { maxWidth: '780px' });
 
     if (data) {
       const res = await api('saveDispatch', data, { loaderMessage: 'Recording hawker dispatch sale...' });
