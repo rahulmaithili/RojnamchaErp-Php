@@ -4,8 +4,10 @@
  * Optimized for InfinityFree, cPanel, Shared Hosting, and Local Deployments
  */
 
-error_reporting(E_ALL);
-ini_set('display_errors', '1');
+// Suppress all PHP errors/warnings from polluting JSON output
+error_reporting(0);
+ini_set('display_errors', '0');
+ob_start(); // Buffer any stray output before JSON
 
 // Protect execution if already locked
 $lockFile = __DIR__ . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'setup.lock';
@@ -13,6 +15,7 @@ $isLocked = file_exists($lockFile);
 
 // Handle AJAX actions
 if (isset($_GET['action']) || isset($_POST['action'])) {
+    ob_clean(); // Clear any buffered output before sending JSON
     header('Content-Type: application/json; charset=utf-8');
     $action = $_GET['action'] ?? $_POST['action'] ?? '';
 
