@@ -1,0 +1,14 @@
+# Shiv Shakti HP Gas ERP - Apache Configuration
+DirectoryIndex index.php index.html
+
+# Prevent Directory Browsing
+Options -Indexes
+
+# UTF-8 Encoding
+AddDefaultCharset UTF-8
+
+# Protect Sensitive Files
+<FilesMatch "^(\.env|\.git|db_config\.json|\.sqlite|\.db|composer\.json)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>

@@ -39,6 +39,22 @@ if (isset($_GET['action']) || isset($_POST['action'])) {
         }
         $isDataWritable = is_writable($dataDir);
 
+        $hasIndexHtml = file_exists(__DIR__ . DIRECTORY_SEPARATOR . 'index.html');
+        $hasApiPhp = file_exists(__DIR__ . DIRECTORY_SEPARATOR . 'api.php');
+        $hasJsDir = is_dir(__DIR__ . DIRECTORY_SEPARATOR . 'js');
+
+        // Check if extracted inside a subfolder
+        $subfolderWithApp = null;
+        if (!$hasIndexHtml) {
+            $dirs = glob(__DIR__ . DIRECTORY_SEPARATOR . '*', GLOB_ONLYDIR);
+            foreach ($dirs as $d) {
+                if (file_exists($d . DIRECTORY_SEPARATOR . 'index.html')) {
+                    $subfolderWithApp = basename($d);
+                    break;
+                }
+            }
+        }
+
         echo json_encode([
             'ok' => true,
             'phpVersion' => $phpVersion,
@@ -46,7 +62,40 @@ if (isset($_GET['action']) || isset($_POST['action'])) {
             'hasPdo' => $hasPdo,
             'hasSqlite' => $hasSqlite,
             'hasMysql' => $hasMysql,
-            'isDataWritable' => $isDataWritable
+            'isDataWritable' => $isDataWritable,
+            'hasIndexHtml' => $hasIndexHtml,
+            'hasApiPhp' => $hasApiPhp,
+            'hasJsDir' => $hasJsDir,
+            'subfolderWithApp' => $subfolderWithApp
+        ]);
+        exit;
+    }
+
+    if ($action === 'fix_subfolder') {
+        $subfolder = trim($_POST['folder'] ?? '');
+        $srcDir = realpath(__DIR__ . DIRECTORY_SEPARATOR . $subfolder);
+        if (!$srcDir || !is_dir($srcDir) || strpos($srcDir, __DIR__) !== 0) {
+            echo json_encode(['ok' => false, 'message' => 'Invalid subfolder']);
+            exit;
+        }
+
+        $items = scandir($srcDir);
+        $moved = 0;
+        foreach ($items as $item) {
+            if ($item === '.' || $item === '..') continue;
+            $src = $srcDir . DIRECTORY_SEPARATOR . $item;
+            $dst = __DIR__ . DIRECTORY_SEPARATOR . $item;
+            if (!file_exists($dst)) {
+                if (@rename($src, $dst)) {
+                    $moved++;
+                }
+            }
+        }
+
+        echo json_encode([
+            'ok' => true,
+            'moved' => $moved,
+            'message' => "Successfully moved files to root directory!"
         ]);
         exit;
     }
@@ -250,7 +299,7 @@ if (isset($_GET['action']) || isset($_POST['action'])) {
         <strong><i class="fa-solid fa-lock"></i> Setup is Locked:</strong> The ERP database is already installed and protected. To access your system directly, click the button below. If you want to re-run setup, delete the file <code>data/setup.lock</code> via File Manager.
       </div>
       <div style="text-align:center; padding: 20px 0;">
-        <a href="index.html" class="btn btn-success" style="font-size:15px; padding:14px 28px;">
+        <a href="index.php" class="btn btn-success" style="font-size:15px; padding:14px 28px;">
           <i class="fa-solid fa-rocket"></i> Launch Shiv Shakti HP Gas ERP
         </a>
       </div>
@@ -275,10 +324,13 @@ if (isset($_GET['action']) || isset($_POST['action'])) {
           <span id="chk-mysql"><i class="fa-solid fa-spinner fa-spin"></i> Checking...</span>
         </div>
         <div class="check-item">
-          <strong>data/ Directory</strong>
-          <span id="chk-perm"><i class="fa-solid fa-spinner fa-spin"></i> Checking...</span>
+          <strong>Frontend Files</strong>
+          <span id="chk-files"><i class="fa-solid fa-spinner fa-spin"></i> Checking...</span>
         </div>
       </div>
+
+      <!-- File Structure Recovery Banner -->
+      <div id="file-warning-box" style="display:none; margin-bottom:20px;"></div>
 
       <!-- Database Options Tabs -->
       <div class="tabs">
@@ -358,7 +410,7 @@ if (isset($_GET['action']) || isset($_POST['action'])) {
         </div>
 
         <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:16px;">
-          <a href="index.html" class="btn btn-success" style="flex:1;">
+          <a href="index.php" class="btn btn-success" style="flex:1;">
             <i class="fa-solid fa-right-to-bracket"></i> Launch Shiv Shakti HP Gas ERP
           </a>
           <button type="button" id="btn-lock" class="btn btn-primary" style="background:#334155;">
@@ -402,7 +454,56 @@ if (isset($_GET['action']) || isset($_POST['action'])) {
         document.getElementById('chk-php').innerHTML = `<span class="${data.isPhpOk ? 'status-ok' : 'status-fail'}">${data.phpVersion} ${data.isPhpOk ? '✓' : '✗'}</span>`;
         document.getElementById('chk-sqlite').innerHTML = `<span class="${data.hasSqlite ? 'status-ok' : 'status-fail'}">${data.hasSqlite ? 'Enabled ✓' : 'Disabled ✗'}</span>`;
         document.getElementById('chk-mysql').innerHTML = `<span class="${data.hasMysql ? 'status-ok' : 'status-fail'}">${data.hasMysql ? 'Enabled ✓' : 'Disabled ✗'}</span>`;
-        document.getElementById('chk-perm').innerHTML = `<span class="${data.isDataWritable ? 'status-ok' : 'status-fail'}">${data.isDataWritable ? 'Writable ✓' : 'ReadOnly ✗'}</span>`;
+        
+        const filesEl = document.getElementById('chk-files');
+        const warnBox = document.getElementById('file-warning-box');
+        if (data.hasIndexHtml) {
+          filesEl.innerHTML = `<span class="status-ok">Present ✓</span>`;
+          if (warnBox) warnBox.style.display = 'none';
+        } else {
+          filesEl.innerHTML = `<span class="status-fail">Missing ✗</span>`;
+          if (warnBox) {
+            warnBox.style.display = 'block';
+            if (data.subfolderWithApp) {
+              warnBox.innerHTML = `
+                <div style="background:#fef3c7; border:1px solid #fde68a; color:#92400e; padding:16px; border-radius:8px; font-size:13px;">
+                  <strong style="display:block; font-size:14px; margin-bottom:6px;"><i class="fa-solid fa-triangle-exclamation"></i> Files Detected in Subfolder: <code>htdocs/${data.subfolderWithApp}</code></strong>
+                  Your project files were extracted into a subfolder. To fix the 404 error, they must be moved directly into <code>htdocs</code>.
+                  <div style="margin-top:12px;">
+                    <button type="button" id="btn-fix-folder" class="btn btn-primary" style="padding:8px 16px; font-size:12.5px;">
+                      <i class="fa-solid fa-folder-tree"></i> Move Files to htdocs Root Automatically
+                    </button>
+                  </div>
+                </div>
+              `;
+              document.getElementById('btn-fix-folder')?.addEventListener('click', async () => {
+                const b = document.getElementById('btn-fix-folder');
+                b.disabled = true;
+                b.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Moving files...';
+                const fd = new FormData();
+                fd.append('folder', data.subfolderWithApp);
+                const r = await fetch('setup.php?action=fix_subfolder', { method: 'POST', body: fd });
+                const d = await r.json();
+                if (d.ok) {
+                  alert(d.message || 'Files moved successfully!');
+                  location.reload();
+                } else {
+                  alert('Error moving files: ' + d.message);
+                  b.disabled = false;
+                  b.innerHTML = 'Retry Moving Files';
+                }
+              });
+            } else {
+              warnBox.innerHTML = `
+                <div style="background:#fef2f2; border:1px solid #fecaca; color:#991b1b; padding:16px; border-radius:8px; font-size:13px;">
+                  <strong style="display:block; font-size:14px; margin-bottom:6px;"><i class="fa-solid fa-circle-exclamation"></i> Frontend Files Missing in <code>htdocs/</code></strong>
+                  Only <code>setup.php</code> is present in this folder. <code>index.html</code>, <code>js/</code>, <code>css/</code>, and <code>api.php</code> were not uploaded.
+                  Please upload <strong>RojnamchaERP.zip</strong> to your InfinityFree File Manager inside <code>htdocs/</code> and extract all files there.
+                </div>
+              `;
+            }
+          }
+        }
       }
     } catch (err) {
       console.error(err);
