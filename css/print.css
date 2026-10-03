@@ -1,0 +1,446 @@
+/* ==========================================================================
+   SHIV SHAKTI HP GAS - ADVANCED MULTI-TEMPLATE PRINT STYLESHEET
+   Supports: 80mm Thermal Receipt, A4 GST Tax Invoice, Modern Voucher,
+             Daily Rojnamcha Official Sheet, Salary Payslip & Dues Statement
+   ========================================================================== */
+
+/* Hidden in screen display */
+#docPrintRoot {
+  display: none;
+}
+
+/* ==========================================================================
+   PRINT PREVIEW SHEETS (SCREEN VIEW)
+   ========================================================================== */
+.doc-sheet-wrap {
+  background: #cbd5e1;
+  padding: 20px;
+  border-radius: 8px;
+  max-height: 72vh;
+  overflow-y: auto;
+  display: flex;
+  justify-content: center;
+}
+
+.doc-sheet {
+  background: #ffffff;
+  color: #0f172a;
+  width: 100%;
+  max-width: 800px;
+  padding: 32px 36px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  font-size: 12px;
+  line-height: 1.45;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  box-sizing: border-box;
+}
+
+/* 80mm Thermal Preview Container */
+.doc-sheet.thermal-80mm {
+  max-width: 320px;
+  width: 100%;
+  padding: 16px 12px;
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
+  font-size: 11px;
+  line-height: 1.35;
+  border: 1px dashed #94a3b8;
+}
+
+/* ==========================================================================
+   COMMON DOCUMENT ELEMENTS
+   ========================================================================== */
+.ds-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  border-bottom: 2px solid #001f3f;
+  padding-bottom: 14px;
+  margin-bottom: 16px;
+}
+
+.ds-brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.ds-logo {
+  max-width: 60px;
+  max-height: 60px;
+  object-fit: contain;
+  border-radius: 6px;
+}
+
+.ds-company-title {
+  font-size: 17px;
+  font-weight: 800;
+  color: #001f3f;
+  line-height: 1.2;
+}
+
+.ds-company-sub {
+  font-size: 10.5px;
+  color: #475569;
+  margin-top: 3px;
+  line-height: 1.3;
+}
+
+.ds-doc-meta {
+  text-align: right;
+}
+
+.ds-doc-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: #001f3f;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.ds-doc-num {
+  font-size: 13px;
+  font-weight: 700;
+  color: #0074D9;
+  margin-top: 2px;
+}
+
+.ds-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 9.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  background: #001f3f;
+  color: #ffffff;
+  margin-top: 4px;
+}
+
+/* 2-Column Info Grid */
+.ds-info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.ds-info-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 10px 12px;
+}
+
+.ds-info-box-title {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #001f3f;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 4px;
+  margin-bottom: 6px;
+}
+
+.ds-info-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  margin-bottom: 3px;
+}
+
+.ds-info-row span {
+  color: #64748b;
+}
+
+.ds-info-row strong {
+  color: #0f172a;
+}
+
+/* Document Table */
+.ds-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11.5px;
+  margin-bottom: 14px;
+}
+
+.ds-table th {
+  background: #001f3f;
+  color: #ffffff;
+  padding: 8px 10px;
+  text-align: left;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 700;
+}
+
+.ds-table td {
+  padding: 7px 10px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.ds-table tbody tr:nth-child(even) td {
+  background: #f8fafc;
+}
+
+.ds-table .num {
+  text-align: right;
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
+  font-weight: 600;
+}
+
+/* Totals Box */
+.ds-totals-grid {
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  gap: 20px;
+  align-items: start;
+  margin-top: 10px;
+}
+
+.ds-summary-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11.5px;
+}
+
+.ds-summary-table td {
+  padding: 5px 8px;
+}
+
+.ds-summary-table td.num {
+  text-align: right;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600;
+}
+
+.ds-summary-table tr.grand-row td {
+  background: #001f3f;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 800;
+  padding: 8px;
+}
+
+/* Signatures */
+.ds-signatures {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 36px;
+  padding-top: 14px;
+  border-top: 1px dashed #cbd5e1;
+  font-size: 11px;
+  color: #475569;
+}
+
+.ds-signature-box {
+  text-align: center;
+  min-width: 150px;
+  border-top: 1px solid #000000;
+  padding-top: 6px;
+}
+
+/* ==========================================================================
+   80MM THERMAL RECEIPT SPECIFIC STYLES
+   ========================================================================== */
+.thermal-header {
+  text-align: center;
+  border-bottom: 1px dashed #000000;
+  padding-bottom: 8px;
+  margin-bottom: 8px;
+}
+
+.thermal-logo {
+  max-width: 48px;
+  max-height: 48px;
+  margin: 0 auto 4px auto;
+  display: block;
+}
+
+.thermal-title {
+  font-size: 13px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.thermal-sub {
+  font-size: 9.5px;
+  line-height: 1.25;
+}
+
+.thermal-divider {
+  border-bottom: 1px dashed #000000;
+  margin: 6px 0;
+}
+
+.thermal-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10.5px;
+  margin-bottom: 2px;
+}
+
+.thermal-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 10px;
+  margin: 6px 0;
+}
+
+.thermal-table th {
+  border-top: 1px dashed #000;
+  border-bottom: 1px dashed #000;
+  padding: 4px 2px;
+  text-align: left;
+}
+
+.thermal-table td {
+  padding: 4px 2px;
+  vertical-align: top;
+}
+
+.thermal-footer {
+  text-align: center;
+  font-size: 9px;
+  margin-top: 8px;
+  line-height: 1.3;
+}
+
+/* ==========================================================================
+   OFFICIAL HPCL ROJNAMCHA REPORT (EXACT PDF STANDARD FORMAT)
+   ========================================================================== */
+.roj-official-container {
+  width: 100%;
+  max-width: 1040px;
+  margin: 0 auto;
+  background: #ffffff !important;
+  color: #000000 !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-size: 11px;
+}
+
+.roj-page-break {
+  background: #ffffff;
+  padding: 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+}
+
+.roj-official-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 10.5px;
+  margin-top: 4px;
+  border: 1px solid #94a3b8;
+}
+
+.roj-official-table th {
+  background: #001f3f;
+  color: #ffffff;
+  padding: 6px 8px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  border: 1px solid #475569;
+  text-align: left;
+}
+
+.roj-official-table th.num {
+  text-align: right;
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
+}
+
+.roj-official-table td {
+  padding: 5px 8px;
+  border: 1px solid #cbd5e1;
+  color: #0f172a;
+  vertical-align: middle;
+}
+
+.roj-official-table tbody tr:nth-child(even) td {
+  background: #f8fafc;
+}
+
+.roj-official-table td.num {
+  text-align: right;
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
+  font-weight: 600;
+}
+
+.roj-official-table .font-bold {
+  font-weight: 800;
+}
+
+.roj-sign-block {
+  margin-top: 24px;
+  padding-top: 10px;
+}
+
+/* ==========================================================================
+   @MEDIA PRINT — BROWSER ENGINE OVERRIDE
+   ========================================================================== */
+@media print {
+  /* Isolate print element only: hide entire application shell */
+  body.printing-doc > *:not(#docPrintRoot) {
+    display: none !important;
+  }
+
+  body.printing-doc #docPrintRoot {
+    display: block !important;
+    position: static !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+  }
+
+  body.printing-doc .doc-sheet {
+    box-shadow: none !important;
+    border: none !important;
+    width: 100% !important;
+    max-width: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  body.printing-doc .roj-page-break {
+    page-break-after: always;
+    break-after: page;
+    border: none !important;
+    padding: 0 !important;
+    margin-bottom: 0 !important;
+  }
+
+  body.printing-doc .roj-page-break:last-child {
+    page-break-after: avoid;
+    break-after: avoid;
+  }
+
+  body.printing-doc {
+    background: #ffffff !important;
+    color: #000000 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Thermal print rule */
+  body.printing-doc.thermal-print-active {
+    width: 76mm !important;
+  }
+
+  body.printing-doc.thermal-print-active .doc-sheet.thermal-80mm {
+    width: 72mm !important;
+    max-width: 72mm !important;
+    padding: 0 !important;
+    border: none !important;
+  }
+
+  @page {
+    margin: 10mm;
+    size: A4 portrait;
+  }
+}

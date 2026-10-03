@@ -1,0 +1,7 @@
+.git
+.gitignore
+scratch/
+*.bat
+README.md
+TESTING.md
+.gemini/

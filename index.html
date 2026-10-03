@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Shiv Shakti HP Gas — Complete ERP + POS + CRM + Rojnamcha</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="alternate icon" href="favicon.ico">
+  
+  <!-- Google Fonts: Plus Jakarta Sans & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Pinned Vendor Libraries (Prompt Spec: FontAwesome 6.5.1, SweetAlert2 11, Chart.js 4.4.0) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- System Stylesheets -->
+  <link rel="stylesheet" href="css/theme.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/auth.css">
+  <link rel="stylesheet" href="css/responsive.css">
+  <link rel="stylesheet" href="css/print.css">
+
+  <!-- Immediate Theme Restoration (Prevents FOUC) -->
+  <script>
+    (function () {
+      try {
+        var saved = localStorage.getItem('app_theme_palette');
+        if (saved) {
+          var t = JSON.parse(saved);
+          if (t && t.primary) {
+            var root = document.documentElement;
+            root.style.setProperty('--navy-primary', t.primary);
+            root.style.setProperty('--navy-accent', t.accent);
+            root.style.setProperty('--primary', t.primary);
+            root.style.setProperty('--accent', t.accent);
+            root.style.setProperty('--c-bg', t.bg || '#f5f7fb');
+            root.style.setProperty('--c-card', t.card || '#ffffff');
+            root.style.setProperty('--bg-body', t.bg || '#f5f7fb');
+            root.style.setProperty('--bg-surface', t.card || '#ffffff');
+          }
+        }
+      } catch (e) {}
+    })();
+  </script>
+</head>
+<body>
+  <!-- Top Animated Loading Bar (SWR-style non-blocking reads) -->
+  <div id="top-loadbar" class="top-loadbar" style="display:none;"><span></span></div>
+
+  <!-- ========================================== -->
+  <!-- 1. AUTHENTICATION SHELL (PREMIUM FULL-PAGE)-->
+  <!-- ========================================== -->
+  <div id="auth-shell" class="auth-wrapper" style="display:none;">
+    <div class="auth-container">
+      
+      <!-- Left Hero Showcase Panel -->
+      <div class="auth-hero-panel">
+        <div class="auth-hero-top">
+          <div class="auth-brand-badge">
+            <i class="fa-solid fa-certificate"></i>
+            <span>OFFICIAL HPCL LPG DISTRIBUTORSHIP • BIHAR</span>
+          </div>
+          
+          <h1 class="auth-hero-title">
+            Shiv Shakti HP Gas<br>
+            <span>Integrated ERP & Rojnamcha</span>
+          </h1>
+          
+          <p class="auth-hero-desc">
+            Complete high-performance management system for LPG distribution, point-of-sale billing, commercial cylinders, daily Rojnamcha registers, delivery hawkers, and customer CRM.
+          </p>
+
+          <!-- Feature Cards Grid -->
+          <div class="auth-features-list">
+            <div class="auth-feature-card">
+              <div class="auth-feature-icon icon-blue">
+                <i class="fa-solid fa-cash-register"></i>
+              </div>
+              <div class="auth-feature-name">Fast POS Billing</div>
+              <div class="auth-feature-sub">Domestic & commercial refills, SV/TV vouchers, instant thermal & A4 invoices.</div>
+            </div>
+
+            <div class="auth-feature-card">
+              <div class="auth-feature-icon icon-amber">
+                <i class="fa-solid fa-truck-fast"></i>
+              </div>
+              <div class="auth-feature-name">Hawker Logistics</div>
+              <div class="auth-feature-sub">Full delivery dispatch logging, collection reconciliation, shortage tracking.</div>
+            </div>
+
+            <div class="auth-feature-card">
+              <div class="auth-feature-icon icon-emerald">
+                <i class="fa-solid fa-file-invoice-dollar"></i>
+              </div>
+              <div class="auth-feature-name">Daily Rojnamcha</div>
+              <div class="auth-feature-sub">Exact 4-section audit book, denomination count parity, live Excel export.</div>
+            </div>
+
+            <div class="auth-feature-card">
+              <div class="auth-feature-icon icon-purple">
+                <i class="fa-solid fa-shield-halved"></i>
+              </div>
+              <div class="auth-feature-name">Bank-Grade Security</div>
+              <div class="auth-feature-sub">Role permissions, audit logging, automatic safe backups & data protection.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Hero Footer -->
+        <div class="auth-hero-footer">
+          <div class="auth-status-pill">
+            <span class="auth-status-dot"></span>
+            <span>ERP System Online & Secured</span>
+          </div>
+          <div>Location: Pandaul, Madhubani</div>
+        </div>
+      </div>
+
+      <!-- Right Interactive Login Form Panel -->
+      <div class="auth-form-panel">
+        <div class="auth-form-card">
+          
+          <div class="auth-header">
+            <div id="login-logo-container" class="auth-logo-wrap">
+              <div class="logo-fallback">HP</div>
+            </div>
+            <h2 id="login-company-name" class="auth-title">
+              Shiv Shakti HP Gas (Pandaul)
+            </h2>
+            <p class="auth-subtitle">
+              Enter your authorized credentials to access the system
+            </p>
+          </div>
+
+          <form id="login-form">
+            <!-- Operator Username -->
+            <div class="auth-field">
+              <label class="auth-label" for="login-username">
+                <span>Operator Username</span>
+                <span style="font-size:11px; color:#64748b; font-weight:normal;">Required</span>
+              </label>
+              <div class="auth-input-group">
+                <i class="fa-solid fa-user input-icon"></i>
+                <input type="text" id="login-username" class="auth-input-control" placeholder="Enter username (e.g. admin)" required autocomplete="username">
+              </div>
+            </div>
+
+            <!-- Password -->
+            <div class="auth-field">
+              <label class="auth-label" for="login-password">
+                <span>Password</span>
+                <span style="font-size:11px; color:#64748b; font-weight:normal;">Case-sensitive</span>
+              </label>
+              <div class="auth-input-group">
+                <i class="fa-solid fa-lock input-icon"></i>
+                <input type="password" id="login-password" class="auth-input-control" placeholder="Enter secure password" required autocomplete="current-password">
+                <button type="button" id="login-toggle-pwd" class="pwd-toggle-btn" title="Toggle password visibility">
+                  <i class="fa-solid fa-eye"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Quick Auto-Fill Credential Pill -->
+            <div id="login-quick-fill" class="auth-quick-pill" title="Click to auto-fill default admin credentials">
+              <span><i class="fa-solid fa-key" style="margin-right:6px; color:#2563eb;"></i> Default: <strong>admin</strong> / <strong>Admin@12345</strong></span>
+              <span class="quick-btn-badge">Auto Fill</span>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="auth-submit-btn">
+              <i class="fa-solid fa-right-to-bracket"></i>
+              <span>Secure System Sign In</span>
+            </button>
+          </form>
+
+          <!-- Security Footer Notice -->
+          <div class="auth-footer">
+            <div>Authorized LPG Agency Personnel Only • 256-Bit SSL Protection</div>
+            <div class="emergency-badge">
+              <i class="fa-solid fa-phone-volume"></i>
+              <span>LPG Emergency Helpline: 1906</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ========================================== -->
+  <!-- 2. MAIN APPLICATION SHELL (DESKTOP + MOBILE)-->
+  <!-- ========================================== -->
+  <div id="app-shell" style="display:none; height:100vh; overflow:hidden;">
+    
+    <!-- Sidebar Navigation -->
+    <aside id="app-sidebar" class="sidebar">
+      <div class="sidebar-header">
+        <div id="sidebar-logo-container" style="width:38px; height:38px; flex-shrink:0;">
+          <div class="logo-fallback">HP</div>
+        </div>
+        <div style="min-width:0; overflow:hidden;">
+          <div id="sidebar-company-name" class="sidebar-brand-name" style="white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">Shiv Shakti HP Gas</div>
+          <div id="sidebar-agency-sub" class="sidebar-brand-sub">Code: HP-PDL-8842</div>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <!-- Main Core -->
+        <a class="nav-item active" data-route="dashboard" title="Dashboard"><i class="fa-solid fa-gauge-high"></i> <span>Dashboard</span></a>
+        <a class="nav-item" data-route="billing" title="POS Billing"><i class="fa-solid fa-cash-register"></i> <span>POS Billing</span></a>
+        <a class="nav-item" data-route="customers" title="Customer CRM"><i class="fa-solid fa-users"></i> <span>Customer CRM</span></a>
+        <a class="nav-item" data-route="dues" title="Customer Dues"><i class="fa-solid fa-hand-holding-dollar"></i> <span>Customer Dues</span></a>
+
+        <div class="nav-section-title">Operations & Log</div>
+        <a class="nav-item" data-route="dispatch" title="Hawker Dispatch"><i class="fa-solid fa-truck-fast"></i> <span>Hawker Dispatch</span></a>
+        <a class="nav-item" data-route="stock" title="Cylinder Inventory"><i class="fa-solid fa-gas-pump"></i> <span>Cylinder Inventory</span></a>
+        <a class="nav-item" data-route="cashbook" title="Cashbook & Closing"><i class="fa-solid fa-vault"></i> <span>Cashbook & Closing</span></a>
+        <a class="nav-item" data-route="rojnamcha" title="Daily Rojnamcha"><i class="fa-solid fa-book-journal-whills"></i> <span>Daily Rojnamcha</span></a>
+
+        <div class="nav-section-title">Management & Staff</div>
+        <a class="nav-item" data-route="employees" title="Staff Master"><i class="fa-solid fa-id-card-clip"></i> <span>Staff Master</span></a>
+        <a class="nav-item" data-route="attendance" title="Attendance"><i class="fa-solid fa-clipboard-user"></i> <span>Attendance</span></a>
+        <a class="nav-item" data-route="salary" title="Payroll / Salary"><i class="fa-solid fa-money-check-dollar"></i> <span>Payroll / Salary</span></a>
+        <a class="nav-item" data-route="vendors" title="Suppliers / Inwards"><i class="fa-solid fa-boxes-packing"></i> <span>Suppliers / Inwards</span></a>
+        <a class="nav-item" data-route="items" title="Items & Rates"><i class="fa-solid fa-tags"></i> <span>Items & Rates</span></a>
+
+        <div class="nav-section-title">Audit & Reports</div>
+        <a class="nav-item" data-route="reconciliation" title="Reconciliation"><i class="fa-solid fa-scale-balanced"></i> <span>Reconciliation</span></a>
+        <a class="nav-item" data-route="reports" title="Reports Center"><i class="fa-solid fa-chart-pie"></i> <span>Reports Center</span></a>
+        <a class="nav-item" data-route="company" title="Company Profile"><i class="fa-solid fa-building-user"></i> <span>Company Profile</span></a>
+        <a class="nav-item admin-only-nav" data-route="users" title="User Accounts"><i class="fa-solid fa-user-shield"></i> <span>User Accounts</span></a>
+        <a class="nav-item admin-only-nav" data-route="permissions" title="RBAC Permissions"><i class="fa-solid fa-key"></i> <span>RBAC Permissions</span></a>
+        <a class="nav-item admin-only-nav" data-route="audit" title="Security Audit Log"><i class="fa-solid fa-shield-halved"></i> <span>Security Audit Log</span></a>
+        <a class="nav-item admin-only-nav" data-route="archive" title="Data Backup, Import, Export & Reset"><i class="fa-solid fa-database"></i> <span>Data & Backup Center</span></a>
+        <a class="nav-item" data-route="settings" title="System Settings"><i class="fa-solid fa-gear"></i> <span>System Settings</span></a>
+      </nav>
+    </aside>
+
+    <!-- Main Content Workspace -->
+    <div class="main-wrapper">
+      
+      <!-- Topbar Header -->
+      <header class="topbar">
+        <div class="topbar-left" style="display:flex; align-items:center; gap:12px;">
+          <button id="sidebar-toggle-btn" class="btn btn-outline btn-sm" title="Toggle Sidebar (Expand / Collapse)" style="width:38px; height:38px; padding:0; display:inline-flex; align-items:center; justify-content:center; border-radius:var(--r-sm);">
+            <i class="fa-solid fa-bars" style="font-size:16px;"></i>
+          </button>
+          
+          <div class="global-search-box">
+            <i class="fa-solid fa-magnifying-glass global-search-icon"></i>
+            <input type="text" id="global-search-input" class="global-search-input" placeholder="Search bills, customers, hawkers...">
+            <div id="global-search-dropdown" class="search-results-dropdown"></div>
+          </div>
+        </div>
+
+        <div class="topbar-right">
+          <!-- Quick Palette Switcher -->
+          <div style="position:relative;">
+            <button id="btn-theme-palette" class="btn btn-outline btn-sm" title="Choose Palette Theme" style="height:38px; width:38px; padding:0;">
+              <i class="fa-solid fa-palette" style="color:var(--navy-accent);"></i>
+            </button>
+            <div id="theme-palette-dropdown" style="display:none; position:absolute; right:0; top:calc(100% + 8px); background:var(--bg-surface); border:1px solid var(--border); border-radius:var(--r-md); box-shadow:var(--shadow-lg); padding:14px; width:260px; z-index:1000;">
+              <div style="font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:0.5px; color:var(--text-muted); margin-bottom:10px;">
+                Color Palette Themes
+              </div>
+              <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:8px; margin-bottom:12px;">
+                <button class="theme-pick-btn" data-theme="navy" title="Enterprise Navy" style="height:32px; border-radius:6px; border:2px solid #001f3f; background:linear-gradient(135deg, #001f3f, #0074D9); cursor:pointer;"></button>
+                <button class="theme-pick-btn" data-theme="graphite" title="Graphite & Cyan" style="height:32px; border-radius:6px; border:2px solid #2c313c; background:linear-gradient(135deg, #2c313c, #00b8d9); cursor:pointer;"></button>
+                <button class="theme-pick-btn" data-theme="emerald" title="Emerald Corporate" style="height:32px; border-radius:6px; border:2px solid #0f766e; background:linear-gradient(135deg, #0f766e, #10b981); cursor:pointer;"></button>
+                <button class="theme-pick-btn" data-theme="zinc" title="Zinc & Sky (SaaS)" style="height:32px; border-radius:6px; border:2px solid #18181b; background:linear-gradient(135deg, #18181b, #0ea5e9); cursor:pointer;"></button>
+                <button class="theme-pick-btn" data-theme="arctic" title="Arctic Frost" style="height:32px; border-radius:6px; border:2px solid #0c4a6e; background:linear-gradient(135deg, #0c4a6e, #38bdf8); cursor:pointer;"></button>
+                <button class="theme-pick-btn" data-theme="carbon" title="Carbon Electric" style="height:32px; border-radius:6px; border:2px solid #111827; background:linear-gradient(135deg, #111827, #6366f1); cursor:pointer;"></button>
+                <button class="theme-pick-btn" data-theme="amber" title="Warm Amber Analytics" style="height:32px; border-radius:6px; border:2px solid #7c2d12; background:linear-gradient(135deg, #7c2d12, #f97316); cursor:pointer;"></button>
+              </div>
+              <div style="border-top:1px solid var(--border); padding-top:10px; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:12px; font-weight:600;"><i class="fa-solid fa-moon"></i> Dark Mode</span>
+                <label class="tgl">
+                  <input type="checkbox" id="dark-mode-toggle">
+                  <span class="tgl-track"></span>
+                </label>
+              </div>
+              <a href="#settings" id="topbar-open-themes-link" style="display:block; text-align:center; font-size:11.5px; color:var(--navy-accent); font-weight:700; margin-top:8px; padding-top:8px; border-top:1px dashed var(--border); text-decoration:none;">
+                <i class="fa-solid fa-palette"></i> Browse All 35+ Themes →
+              </a>
+            </div>
+          </div>
+
+          <!-- User Profile & Action Dropdown -->
+          <div class="user-profile-btn">
+            <div id="topbar-user-avatar" class="user-avatar">SA</div>
+            <div style="text-align:left; display:none; flex-direction:column;" class="desktop-user-info">
+              <span id="topbar-user-name" style="font-size:13px; font-weight:700;">System Administrator</span>
+              <span id="topbar-user-role" style="font-size:11px; color:var(--text-muted);">ADMIN</span>
+            </div>
+          </div>
+
+          <button id="btn-change-password" class="btn btn-outline btn-sm" title="Change Password" style="height:38px; width:38px; padding:0;">
+            <i class="fa-solid fa-key"></i>
+          </button>
+          
+          <button id="btn-logout" class="btn btn-secondary btn-sm" title="Logout" style="height:38px; width:38px; padding:0;">
+            <i class="fa-solid fa-power-off" style="color:var(--color-danger);"></i>
+          </button>
+        </div>
+      </header>
+
+      <!-- View Containers (Section per module) -->
+      <main class="page-content">
+        <section id="view-dashboard" class="view-section"></section>
+        <section id="view-billing" class="view-section" style="display:none;"></section>
+        <section id="view-customers" class="view-section" style="display:none;"></section>
+        <section id="view-dues" class="view-section" style="display:none;"></section>
+        <section id="view-dispatch" class="view-section" style="display:none;"></section>
+        <section id="view-stock" class="view-section" style="display:none;"></section>
+        <section id="view-cashbook" class="view-section" style="display:none;"></section>
+        <section id="view-rojnamcha" class="view-section" style="display:none;"></section>
+        <section id="view-employees" class="view-section" style="display:none;"></section>
+        <section id="view-attendance" class="view-section" style="display:none;"></section>
+        <section id="view-salary" class="view-section" style="display:none;"></section>
+        <section id="view-vendors" class="view-section" style="display:none;"></section>
+        <section id="view-items" class="view-section" style="display:none;"></section>
+        <section id="view-reconciliation" class="view-section" style="display:none;"></section>
+        <section id="view-reports" class="view-section" style="display:none;"></section>
+        <section id="view-company" class="view-section" style="display:none;"></section>
+        <section id="view-users" class="view-section" style="display:none;"></section>
+        <section id="view-permissions" class="view-section" style="display:none;"></section>
+        <section id="view-audit" class="view-section" style="display:none;"></section>
+        <section id="view-archive" class="view-section" style="display:none;"></section>
+        <section id="view-settings" class="view-section" style="display:none;"></section>
+      </main>
+
+      <!-- Mobile Bottom Navigation Bar -->
+      <nav class="mobile-nav-bar">
+        <a class="mobile-nav-item active" data-route="dashboard">
+          <i class="fa-solid fa-gauge-high"></i> Dashboard
+        </a>
+        <a class="mobile-nav-item" data-route="billing">
+          <i class="fa-solid fa-cash-register"></i> POS
+        </a>
+        <a class="mobile-nav-item" data-route="customers">
+          <i class="fa-solid fa-users"></i> CRM
+        </a>
+        <a class="mobile-nav-item" data-route="dues">
+          <i class="fa-solid fa-hand-holding-dollar"></i> Dues
+        </a>
+        <a class="mobile-nav-item" data-route="rojnamcha">
+          <i class="fa-solid fa-book-journal-whills"></i> Rojnamcha
+        </a>
+      </nav>
+
+    </div>
+  </div>
+
+
+  <!-- ========================================== -->
+  <!-- 2.5 DEDICATED APP FORM MODAL (ADD / EDIT)  -->
+  <!-- ========================================== -->
+  <div id="app-form-modal" class="modal-overlay" style="display:none;">
+    <div class="modal-content" style="max-width:680px; width:95%;">
+      <div class="modal-header">
+        <h3 id="app-form-modal-title" class="modal-title"><i class="fa-solid fa-pen-to-square"></i> Record Form</h3>
+        <button id="app-form-modal-close-btn" class="modal-close-btn">&times;</button>
+      </div>
+      <div id="app-form-modal-error" style="display:none; margin:16px 20px 0 20px; padding:10px 14px; background:#fef2f2; border:1px solid #fecaca; border-radius:var(--r-sm); color:#dc2626; font-size:13px; font-weight:600;">
+        <i class="fa-solid fa-circle-exclamation"></i> <span id="app-form-modal-error-text"></span>
+      </div>
+      <div id="app-form-modal-body" class="modal-body" style="padding:22px; max-height:76vh; overflow-y:auto;">
+        <!-- Dynamic form inputs injected here -->
+      </div>
+      <div id="app-form-modal-footer" class="modal-footer">
+        <button id="app-form-modal-cancel-btn" class="btn btn-secondary btn-sm" type="button">Cancel</button>
+        <button id="app-form-modal-submit-btn" class="btn btn-primary btn-sm" type="button">
+          <i class="fa-solid fa-check"></i> Submit
+        </button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ========================================== -->
+  <!-- 3. DETAIL VIEW MODAL (EYE BUTTON)          -->
+  <!-- ========================================== -->
+  <div id="view-details-modal" class="modal-overlay" style="display:none;">
+    <div class="modal-content" style="max-width:850px; width:95%;">
+      <div class="modal-header">
+        <h3 id="view-details-title" class="modal-title"><i class="fa-solid fa-eye"></i> Record Details</h3>
+        <button id="view-details-close-btn" class="modal-close-btn">&times;</button>
+      </div>
+      <div id="view-details-body" class="modal-body" style="padding:20px;">
+        <!-- Dynamic record preview injected here -->
+      </div>
+      <div id="view-details-footer" class="modal-footer">
+        <button id="view-details-print-btn" class="btn btn-primary btn-sm"><i class="fa-solid fa-print"></i> Print Document</button>
+        <button id="view-details-close-action" class="btn btn-secondary btn-sm">Close</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ========================================== -->
+  <!-- 4. ADVANCED MULTI-TEMPLATE PRINT PREVIEW   -->
+  <!-- ========================================== -->
+  <div id="print-preview-modal" class="modal-overlay" style="display:none;">
+    <div class="modal-content" style="max-width:920px; width:96%; max-height:94vh;">
+      <div class="modal-header" style="flex-wrap:wrap; gap:10px;">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <h3 class="modal-title"><i class="fa-solid fa-print"></i> Document Print Preview</h3>
+        </div>
+        
+        <!-- Multi-Template Selector Pills -->
+        <div id="print-template-pills" style="display:flex; gap:6px; flex-wrap:wrap;">
+          <button class="btn btn-sm btn-outline print-template-pill active" data-template="a4_tax" style="color:white; border-color:rgba(255,255,255,0.4);">
+            <i class="fa-solid fa-file-invoice"></i> A4 Tax Invoice
+          </button>
+          <button class="btn btn-sm btn-outline print-template-pill" data-template="thermal" style="color:white; border-color:rgba(255,255,255,0.4);">
+            <i class="fa-solid fa-receipt"></i> 80mm Thermal
+          </button>
+          <button class="btn btn-sm btn-outline print-template-pill" data-template="modern" style="color:white; border-color:rgba(255,255,255,0.4);">
+            <i class="fa-solid fa-file-lines"></i> Modern Voucher
+          </button>
+        </div>
+
+        <button id="print-modal-close-btn" class="modal-close-btn">&times;</button>
+      </div>
+
+      <div class="modal-body doc-sheet-wrap" style="padding:18px;">
+        <div id="print-preview-content"></div>
+      </div>
+
+      <div class="modal-footer" style="display:flex; justify-content:space-between; align-items:center;">
+        <div style="font-size:12px; color:var(--text-muted);">
+          <i class="fa-solid fa-circle-info"></i> Tip: Use browser print dialog to save as PDF or print to thermal roll.
+        </div>
+        <div style="display:flex; gap:8px;">
+          <button id="print-modal-trigger-btn" class="btn btn-primary" style="height:38px;">
+            <i class="fa-solid fa-print"></i> Print Document
+          </button>
+          <button id="print-modal-cancel-btn" class="btn btn-secondary btn-sm">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Dedicated Isolation Root for Printing (No UI, Only Pure Document) -->
+  <div id="docPrintRoot"></div>
+
+  <!-- Core External Libraries -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="js/vendor/xlsx-js-style.bundle.js"></script>
+  <script>if (typeof XLSX === 'undefined') document.write('<script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"><\/script>');</script>
+
+  <!-- Application Bootstrap -->
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

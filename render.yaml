@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: shiv-shakti-hp-gas-erp
+    runtime: docker
+    plan: free
+    region: singapore
+    envVars:
+      - key: PORT
+        value: 10000
+    disk:
+      name: erp-data
+      mountPath: /var/www/html/data
+      sizeGB: 1

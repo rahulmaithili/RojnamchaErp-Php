@@ -1,0 +1,293 @@
+/* ==========================================================================
+   SHIV SHAKTI HP GAS - ENTERPRISE PALETTE & THEME ENGINE
+   Matches Modern ERP / AdminLTE / SaaS Standards with Instant Palette Switching
+   ========================================================================== */
+
+:root {
+  /* Typography */
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+
+  /* Curved Design Scale */
+  --r-sm: 8px;      /* controls: buttons, inputs, icons */
+  --r-md: 12px;     /* cards, sections, modals, dropdowns */
+  --r-lg: 18px;     /* large containers, avatars, badges */
+  --r-pill: 999px;  /* status pills, chips, counter badges */
+
+  --radius-sm: var(--r-sm);
+  --radius-md: var(--r-md);
+  --radius-lg: var(--r-lg);
+
+  /* Transitions & Shadows */
+  --transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.14);
+  --shadow-xl: 0 20px 48px rgba(0, 0, 0, 0.2);
+
+  /* Semantic Status Colors */
+  --success: #22c55e;
+  --success-bg: #ecfdf5;
+  --warning: #f59e0b;
+  --warning-bg: #fffbeb;
+  --danger: #ef4444;
+  --danger-bg: #fef2f2;
+  --info: #0ea5e9;
+  --info-bg: #f0f9ff;
+
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-info: var(--info);
+
+  /* Default Theme: Enterprise Navy (UI 1) */
+  --navy-primary: #001f3f;
+  --navy-dark: #001529;
+  --navy-light: #003366;
+  --navy-accent: #0074D9;
+  --navy-hover: #002a52;
+
+  --primary: var(--navy-primary);
+  --primary-hover: var(--navy-hover);
+  --primary-light: #e8f1fb;
+  --primary-rgb: 0, 31, 63;
+  --accent: var(--navy-accent);
+
+  /* Surface & Background */
+  --c-bg: #f5f7fb;
+  --c-card: #ffffff;
+  --bg-body: var(--c-bg);
+  --bg-surface: var(--c-card);
+  --bg-surface-elevated: #ffffff;
+  --bg-sidebar: linear-gradient(180deg, #001f3f 0%, #001529 100%);
+  --bg-sidebar-hover: rgba(255, 255, 255, 0.08);
+  --sidebar-text: rgba(255, 255, 255, 0.78);
+  --sidebar-text-active: #ffffff;
+
+  /* Borders & Text */
+  --border: #e2e8f0;
+  --border-color: #e2e8f0;
+  --border-focus: var(--navy-accent);
+  --text-main: #1e293b;
+  --text-primary: #1e293b;
+  --text-muted: #64748b;
+  --text-inverse: #ffffff;
+
+  /* Compatibility Aliases */
+  --color-surface: var(--bg-surface);
+  --color-surface-subtle: var(--bg-body);
+
+  /* Dimensions */
+  --topbar-height: 64px;
+  --bottom-nav-height: 70px;
+}
+
+/* ==========================================================================
+   THEME PALETTE PRESETS (colors.md Standard)
+   ========================================================================== */
+
+/* Theme 1: Enterprise Navy */
+body[data-theme="navy"] {
+  --navy-primary: #001f3f;
+  --navy-dark: #001529;
+  --navy-light: #003366;
+  --navy-accent: #0074D9;
+  --navy-hover: #002a52;
+  --primary: #001f3f;
+  --accent: #0074D9;
+  --bg-sidebar: linear-gradient(180deg, #001f3f 0%, #001529 100%);
+  --c-bg: #f5f7fb;
+  --c-card: #ffffff;
+}
+
+/* Theme 2: Graphite & Cyan */
+body[data-theme="graphite"] {
+  --navy-primary: #2c313c;
+  --navy-dark: #1f232b;
+  --navy-light: #49515f;
+  --navy-accent: #00b8d9;
+  --navy-hover: #22262f;
+  --primary: #2c313c;
+  --accent: #00b8d9;
+  --bg-sidebar: linear-gradient(180deg, #2c313c 0%, #171a20 100%);
+  --c-bg: #f5f7fa;
+  --c-card: #ffffff;
+}
+
+/* Theme 3: Emerald Corporate */
+body[data-theme="emerald"] {
+  --navy-primary: #0f766e;
+  --navy-dark: #115e59;
+  --navy-light: #14b8a6;
+  --navy-accent: #10b981;
+  --navy-hover: #0d5e58;
+  --primary: #0f766e;
+  --accent: #10b981;
+  --bg-sidebar: linear-gradient(180deg, #0f766e 0%, #063733 100%);
+  --c-bg: #f4fbf9;
+  --c-card: #ffffff;
+}
+
+/* Theme 4: Zinc & Sky (SaaS 2026) */
+body[data-theme="zinc"] {
+  --navy-primary: #18181b;
+  --navy-dark: #09090b;
+  --navy-light: #3f3f46;
+  --navy-accent: #0ea5e9;
+  --navy-hover: #27272a;
+  --primary: #18181b;
+  --accent: #0ea5e9;
+  --bg-sidebar: linear-gradient(180deg, #18181b 0%, #09090b 100%);
+  --c-bg: #f8fafc;
+  --c-card: #ffffff;
+}
+
+/* Theme 5: Arctic Frost */
+body[data-theme="arctic"] {
+  --navy-primary: #0c4a6e;
+  --navy-dark: #082f49;
+  --navy-light: #0284c7;
+  --navy-accent: #38bdf8;
+  --navy-hover: #075985;
+  --primary: #0c4a6e;
+  --accent: #38bdf8;
+  --bg-sidebar: linear-gradient(180deg, #0c4a6e 0%, #032133 100%);
+  --c-bg: #f0f9ff;
+  --c-card: #ffffff;
+}
+
+/* Theme 6: Carbon Electric */
+body[data-theme="carbon"] {
+  --navy-primary: #111827;
+  --navy-dark: #030712;
+  --navy-light: #1f2937;
+  --navy-accent: #6366f1;
+  --navy-hover: #1e293b;
+  --primary: #111827;
+  --accent: #6366f1;
+  --bg-sidebar: linear-gradient(180deg, #111827 0%, #050b16 100%);
+  --c-bg: #f8fafc;
+  --c-card: #ffffff;
+}
+
+/* Theme 7: Warm Amber Analytics */
+body[data-theme="amber"] {
+  --navy-primary: #7c2d12;
+  --navy-dark: #431407;
+  --navy-light: #9a3412;
+  --navy-accent: #f97316;
+  --navy-hover: #6c2710;
+  --primary: #7c2d12;
+  --accent: #f97316;
+  --bg-sidebar: linear-gradient(180deg, #7c2d12 0%, #350f05 100%);
+  --c-bg: #fffbf5;
+  --c-card: #ffffff;
+}
+
+/* ==========================================================================
+   DARK MODE - LUXURY EDITION
+   ========================================================================== */
+
+body.dark-mode {
+  --c-bg: #0b0f19;
+  --c-card: #141b2d;
+  --bg-body: #0b0f19;
+  --bg-surface: #141b2d;
+  --bg-surface-elevated: #1e2842;
+  
+  --navy-primary: #001f3f;
+  --navy-dark: #001124;
+  --navy-light: #1a365d;
+  --navy-hover: #102a45;
+  
+  --border: #232d45;
+  --border-focus: var(--navy-accent);
+  --text-main: #f1f5f9;
+  --text-primary: #f1f5f9;
+  --text-muted: #94a3b8;
+  --text-inverse: #ffffff;
+
+  background: linear-gradient(135deg, #070a13 0%, #0d1322 50%, #111827 100%) !important;
+  background-attachment: fixed !important;
+  color: #f1f5f9;
+}
+
+body.dark-mode .card,
+body.dark-mode .data-section,
+body.dark-mode .modal-content,
+body.dark-mode .modal,
+body.dark-mode .profile-section {
+  background-color: #141b2d !important;
+  border-color: #232d45 !important;
+  color: #f1f5f9 !important;
+}
+
+body.dark-mode .topbar,
+body.dark-mode .header {
+  background-color: rgba(20, 27, 45, 0.95) !important;
+  border-bottom-color: #232d45 !important;
+  backdrop-filter: blur(8px);
+}
+
+body.dark-mode .form-control,
+body.dark-mode .form-select,
+body.dark-mode input,
+body.dark-mode select,
+body.dark-mode textarea {
+  background-color: #1a2238 !important;
+  border-color: #2b3856 !important;
+  color: #f1f5f9 !important;
+}
+
+body.dark-mode .form-control:focus,
+body.dark-mode input:focus,
+body.dark-mode select:focus {
+  border-color: var(--navy-accent) !important;
+  box-shadow: 0 0 0 3px rgba(0, 116, 217, 0.25) !important;
+}
+
+body.dark-mode table.data-table thead th,
+body.dark-mode table.dataTable thead th {
+  background: #111827 !important;
+  color: #f1f5f9 !important;
+  border-bottom-color: #2b3856 !important;
+}
+
+body.dark-mode table.data-table tbody td,
+body.dark-mode table.dataTable tbody td {
+  border-bottom-color: #1e2842 !important;
+  color: #e2e8f0 !important;
+}
+
+body.dark-mode table.data-table tbody tr:hover,
+body.dark-mode table.dataTable tbody tr:hover {
+  background-color: rgba(0, 116, 217, 0.12) !important;
+}
+
+body.dark-mode .info-box,
+body.dark-mode .lte-card {
+  background: #141b2d !important;
+  border-color: #232d45 !important;
+}
+
+body.dark-mode .info-box-number,
+body.dark-mode .lte-card-title {
+  color: #f1f5f9 !important;
+}
+
+body.dark-mode .lte-card-header {
+  border-bottom-color: #232d45 !important;
+}
+
+body.dark-mode .bottom-nav,
+body.dark-mode .mobile-nav-bar {
+  background: linear-gradient(180deg, #0f172a 0%, #070a13 100%) !important;
+  border-top-color: #232d45 !important;
+}
+
+body.dark-mode .search-results-dropdown,
+body.dark-mode .dropdown-menu {
+  background-color: #141b2d !important;
+  border-color: #2b3856 !important;
+  color: #f1f5f9 !important;
+}

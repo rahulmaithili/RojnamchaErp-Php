@@ -1,0 +1,25 @@
+# Database files (sensitive - never commit)
+data/*.sqlite
+data/*.db
+data/db_config.json
+data/setup.lock
+
+# Logs
+*.log
+logs/
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Windows batch helpers
+*.bat
+
+# Scratch / temp
+scratch/
+*.tmp
+
+# IDE
+.vscode/
+.idea/
