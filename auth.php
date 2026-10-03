@@ -28,6 +28,15 @@ class Auth {
             ];
         }
 
+        // Check if account is pending admin approval after password reset
+        if ($user['Status'] === 'PENDING_APPROVAL') {
+            return [
+                'ok' => false,
+                'code' => 'PENDING_APPROVAL',
+                'message' => 'Password reset is pending Admin approval. Please ask your System Administrator to approve your account before signing in.'
+            ];
+        }
+
         // Check if account is deactivated
         if ($user['Status'] !== 'ACTIVE') {
             return [
@@ -241,12 +250,26 @@ class Auth {
         $newHash = hash('sha256', $newPassword . $newSalt);
         $now = date('Y-m-d H:i:s');
 
-        $upd = $db->prepare("UPDATE users SET PasswordHash = ?, Salt = ?, FailedAttempts = 0, LockUntil = NULL, ForcePasswordChange = 0, UpdatedAt = ? WHERE UserID = ?");
+        $upd = $db->prepare("UPDATE users SET PasswordHash = ?, Salt = ?, Status = 'PENDING_APPROVAL', FailedAttempts = 0, LockUntil = NULL, ForcePasswordChange = 0, UpdatedAt = ? WHERE UserID = ?");
         $upd->execute([$newHash, $newSalt, $now, $user['UserID']]);
 
-        Audit::log($user['UserID'], $user['Username'], 'PASSWORD_RESET', 'users', (string)$user['UserID'], null, null, 'Self-service forgot password reset completed');
+        // Insert notification for admin
+        try {
+            $notif = $db->prepare("INSERT INTO notifications (Type, Title, Message, IsRead, CreatedAt) VALUES ('AUTH', ?, ?, 0, ?)");
+            $notif->execute([
+                'Password Reset Approval: ' . $user['Username'],
+                'User "' . $user['Username'] . '" has updated their password. Account is locked until an Administrator approves the reset.',
+                $now
+            ]);
+        } catch (Throwable $e) {}
 
-        return ['ok' => true, 'message' => 'Password reset successfully! You can now log in with your new password.'];
+        Audit::log($user['UserID'], $user['Username'], 'PASSWORD_RESET_SUBMITTED', 'users', (string)$user['UserID'], null, null, 'Password reset submitted - pending Admin approval');
+
+        return [
+            'ok' => true,
+            'requiresApproval' => true,
+            'message' => 'Password reset request submitted successfully! Your account has been sent to the Admin Panel for approval. You will be able to log in once an Administrator approves your request.'
+        ];
     }
 
     /**

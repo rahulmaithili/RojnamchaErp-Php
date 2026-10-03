@@ -38,8 +38,9 @@ export const usersModule = {
       <div class="card" style="margin-bottom:16px; padding:14px 20px;">
         <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
           <input type="text" id="user-search-input" class="form-control" placeholder="Search username, full name or mobile..." style="flex:1; min-width:240px;">
-          <select id="user-status-filter" class="form-select" style="width:130px;">
-            <option value="active" selected>Active</option>
+          <select id="user-status-filter" class="form-select" style="width:170px;">
+            <option value="active" selected>Active & Pending</option>
+            <option value="pending">Pending Approval</option>
             <option value="deleted">Trash</option>
           </select>
           <button id="user-refresh-btn" class="btn btn-secondary btn-sm"><i class="fa-solid fa-arrows-rotate"></i></button>
@@ -94,33 +95,79 @@ export const usersModule = {
     }
 
     usersList = res.data;
-    tbody.innerHTML = usersList.map(u => `
-      <tr style="${u.IsDeleted ? 'opacity:0.6;' : ''}">
-        <td><strong>${utils.escapeHtml(u.Username)}</strong></td>
-        <td>${utils.escapeHtml(u.FullName)}</td>
-        <td><span class="badge badge-info">${u.Role}</span></td>
-        <td>${utils.escapeHtml(u.Email || u.Mobile || '-')}</td>
-        <td><span class="badge ${u.Status === 'ACTIVE' ? 'badge-success' : 'badge-secondary'}">${u.Status}</span></td>
-        <td>${u.LastLoginAt ? utils.formatDate(u.LastLoginAt.substring(0, 10)) : 'Never'}</td>
-        <td class="text-center">
-          ${auth.getCurrentUser()?.role === 'ADMIN' ? `
-          <button class="btn btn-secondary btn-sm edit-user-btn" data-id="${u.UserID}" title="Edit Profile">
-            <i class="fa-solid fa-pen-to-square"></i>
-          </button>
-          <button class="btn btn-warning btn-sm reset-pwd-btn" data-id="${u.UserID}" data-name="${u.Username}" title="Reset Password">
-            <i class="fa-solid fa-key"></i>
-          </button>
-          ${!u.IsDeleted ? `
-          <button class="btn btn-danger btn-sm del-user-btn" data-id="${u.UserID}" title="Delete">
-            <i class="fa-solid fa-trash"></i>
-          </button>` : `
-          <button class="btn btn-success btn-sm restore-user-btn" data-id="${u.UserID}" title="Restore">
-            <i class="fa-solid fa-rotate-left"></i>
-          </button>`}
-          ` : '-'}
-        </td>
-      </tr>
-    `).join('');
+    tbody.innerHTML = usersList.map(u => {
+      const isPending = (u.Status === 'PENDING_APPROVAL');
+      let statusBadge = `<span class="badge ${u.Status === 'ACTIVE' ? 'badge-success' : 'badge-secondary'}">${u.Status}</span>`;
+      if (isPending) {
+        statusBadge = `<span class="badge" style="background:#fef3c7; color:#b45309; font-weight:800; border:1px solid #fde68a;"><i class="fa-solid fa-clock"></i> PENDING APPROVAL</span>`;
+      }
+
+      return `
+        <tr style="${u.IsDeleted ? 'opacity:0.6;' : ''} ${isPending ? 'background:#fffbeb;' : ''}">
+          <td><strong>${utils.escapeHtml(u.Username)}</strong></td>
+          <td>${utils.escapeHtml(u.FullName)}</td>
+          <td><span class="badge badge-info">${u.Role}</span></td>
+          <td>${utils.escapeHtml(u.Email || u.Mobile || '-')}</td>
+          <td>${statusBadge}</td>
+          <td>${u.LastLoginAt ? utils.formatDate(u.LastLoginAt.substring(0, 10)) : 'Never'}</td>
+          <td class="text-center" style="white-space:nowrap;">
+            ${auth.getCurrentUser()?.role === 'ADMIN' ? `
+              ${isPending ? `
+                <button class="btn btn-sm approve-user-btn" data-id="${u.UserID}" data-name="${u.Username}" title="Approve Password Reset & Re-activate Login" style="background:#16a34a; border-color:#16a34a; color:#fff; font-weight:700; padding:3px 10px; margin-right:4px;">
+                  <i class="fa-solid fa-check"></i> Approve Login
+                </button>
+                <button class="btn btn-sm reject-user-btn" data-id="${u.UserID}" data-name="${u.Username}" title="Reject Reset Request" style="background:#dc2626; border-color:#dc2626; color:#fff; padding:3px 8px; margin-right:6px;">
+                  <i class="fa-solid fa-xmark"></i>
+                </button>
+              ` : ''}
+              <button class="btn btn-secondary btn-sm edit-user-btn" data-id="${u.UserID}" title="Edit Profile">
+                <i class="fa-solid fa-pen-to-square"></i>
+              </button>
+              <button class="btn btn-warning btn-sm reset-pwd-btn" data-id="${u.UserID}" data-name="${u.Username}" title="Reset Password">
+                <i class="fa-solid fa-key"></i>
+              </button>
+              ${!u.IsDeleted ? `
+              <button class="btn btn-danger btn-sm del-user-btn" data-id="${u.UserID}" title="Delete">
+                <i class="fa-solid fa-trash"></i>
+              </button>` : `
+              <button class="btn btn-success btn-sm restore-user-btn" data-id="${u.UserID}" title="Restore">
+                <i class="fa-solid fa-rotate-left"></i>
+              </button>`}
+            ` : '-'}
+          </td>
+        </tr>
+      `;
+    }).join('');
+
+    tbody.querySelectorAll('.approve-user-btn').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        const id = parseInt(e.currentTarget.dataset.id);
+        const uname = e.currentTarget.dataset.name;
+        const confirmed = await ui.confirm(`Approve password reset and activate account login for user "${uname}"?`, 'Approve Password Reset');
+        if (confirmed) {
+          const res = await api('approveUserReset', { UserID: id }, { loaderMessage: 'Approving user account...' });
+          if (res.ok) {
+            ui.success(`User "${uname}" approved successfully! They can now log in with their new password.`);
+            this.loadUsers();
+          }
+        }
+      });
+    });
+
+    tbody.querySelectorAll('.reject-user-btn').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        const id = parseInt(e.currentTarget.dataset.id);
+        const uname = e.currentTarget.dataset.name;
+        const confirmed = await ui.confirm(`Reject password reset request and disable account for "${uname}"?`, 'Reject Reset Request');
+        if (confirmed) {
+          const res = await api('rejectUserReset', { UserID: id }, { loaderMessage: 'Rejecting reset request...' });
+          if (res.ok) {
+            ui.warn(`Password reset request rejected for "${uname}".`);
+            this.loadUsers();
+          }
+        }
+      });
+    });
 
     tbody.querySelectorAll('.edit-user-btn').forEach(btn => {
       btn.addEventListener('click', (e) => {

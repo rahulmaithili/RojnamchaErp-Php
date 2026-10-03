@@ -146,6 +146,8 @@ try {
         case 'restoreUser':
         case 'resetPassword':
         case 'changeRole':
+        case 'approveUserReset':
+        case 'rejectUserReset':
             $response = UserController::handle($action, $payload, $currentUser);
             break;
 

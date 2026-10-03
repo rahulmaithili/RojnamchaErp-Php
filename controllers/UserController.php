@@ -170,6 +170,41 @@ class UserController {
                 Audit::log($user['userId'], $user['username'], 'ROLE_CHANGE', 'users', (string)$targetId, null, ['Role' => $newRole], 'Admin modified user role');
                 return ['ok' => true, 'data' => null, 'message' => "User role updated to $newRole."];
 
+            case 'approveUserReset':
+                if ($user['role'] !== 'ADMIN') {
+                    return ['ok' => false, 'error' => ['code' => 'FORBIDDEN', 'message' => 'Only Admin can approve password resets.']];
+                }
+                $targetId = (int)($payload['UserID'] ?? 0);
+                $now = date('Y-m-d H:i:s');
+                $stmt = $db->prepare("UPDATE users SET Status = 'ACTIVE', FailedAttempts = 0, LockUntil = NULL, ForcePasswordChange = 0, UpdatedAt = ? WHERE UserID = ?");
+                $stmt->execute([$now, $targetId]);
+
+                // Mark any auth notifications for this user as read
+                try {
+                    $uStmt = $db->prepare("SELECT Username FROM users WHERE UserID = ?");
+                    $uStmt->execute([$targetId]);
+                    $tName = $uStmt->fetchColumn();
+                    if ($tName) {
+                        $updNotif = $db->prepare("UPDATE notifications SET IsRead = 1 WHERE Title LIKE ?");
+                        $updNotif->execute(["%$tName%"]);
+                    }
+                } catch (Throwable $e) {}
+
+                Audit::log($user['userId'], $user['username'], 'APPROVE_RESET', 'users', (string)$targetId, null, null, 'Admin approved password reset & activated login');
+                return ['ok' => true, 'data' => null, 'message' => 'User account approved and activated successfully!'];
+
+            case 'rejectUserReset':
+                if ($user['role'] !== 'ADMIN') {
+                    return ['ok' => false, 'error' => ['code' => 'FORBIDDEN', 'message' => 'Only Admin can reject password resets.']];
+                }
+                $targetId = (int)($payload['UserID'] ?? 0);
+                $now = date('Y-m-d H:i:s');
+                $stmt = $db->prepare("UPDATE users SET Status = 'DISABLED', UpdatedAt = ? WHERE UserID = ?");
+                $stmt->execute([$now, $targetId]);
+
+                Audit::log($user['userId'], $user['username'], 'REJECT_RESET', 'users', (string)$targetId, null, null, 'Admin rejected password reset request');
+                return ['ok' => true, 'data' => null, 'message' => 'Password reset request rejected and account disabled.'];
+
             default:
                 return ['ok' => false, 'error' => ['code' => 'NOT_FOUND', 'message' => 'Invalid user action.']];
         }
