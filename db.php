@@ -52,15 +52,91 @@ class Database {
         return self::$instance;
     }
 
+    public static function setConnection(?PDO $pdo): void {
+        self::$instance = $pdo;
+    }
+
+    public static function sqliteToMysql(string $sql): string {
+        // Primary keys: INTEGER PRIMARY KEY AUTOINCREMENT -> INT NOT NULL AUTO_INCREMENT PRIMARY KEY
+        $sql = preg_replace(
+            '/(\b\w+\b)\s+INTEGER\s+PRIMARY\s+KEY\s+AUTOINCREMENT/i',
+            '`$1` INT NOT NULL AUTO_INCREMENT PRIMARY KEY',
+            $sql
+        );
+
+        // SettingKey TEXT PRIMARY KEY -> `SettingKey` VARCHAR(191) NOT NULL PRIMARY KEY
+        $sql = preg_replace(
+            '/(\b\w+\b)\s+TEXT\s+PRIMARY\s+KEY/i',
+            '`$1` VARCHAR(191) NOT NULL PRIMARY KEY',
+            $sql
+        );
+
+        // Unique TEXT columns: column TEXT UNIQUE -> `column` VARCHAR(191) UNIQUE
+        $sql = preg_replace(
+            '/(\b\w+\b)\s+TEXT\s+UNIQUE\s+NOT\s+NULL/i',
+            '`$1` VARCHAR(191) NOT NULL UNIQUE',
+            $sql
+        );
+        $sql = preg_replace(
+            '/(\b\w+\b)\s+TEXT\s+UNIQUE/i',
+            '`$1` VARCHAR(191) UNIQUE',
+            $sql
+        );
+
+        // Columns that appear in compound UNIQUE keys or index constraints
+        $indexCols = [
+            'RoleName', 'ModuleName', 'Date', 'SalaryMonth', 'CylinderType',
+            'ItemCode', 'CustomerCode', 'ConsumerNo', 'Mobile', 'AltMobile', 'LPGID',
+            'BillNumber', 'DueNumber', 'ReceiptNumber', 'EmpCode', 'AdvanceNumber',
+            'SalaryNumber', 'VendorCode', 'DispatchNumber', 'ReturnNumber', 'RefundNumber',
+            'ChallanNumber', 'InvoiceNumber', 'TruckNumber', 'VehicleNo', 'VehicleNumber'
+        ];
+        foreach ($indexCols as $col) {
+            $sql = preg_replace("/\b$col\s+TEXT\b/i", "`$col` VARCHAR(191)", $sql);
+        }
+
+        // TEXT DEFAULT '...' -> VARCHAR(255) DEFAULT '...'
+        $sql = preg_replace(
+            '/(\b\w+\b)\s+TEXT(\s+NOT\s+NULL)?\s+DEFAULT\s+([\'"][^\'"]*[\'"])/i',
+            '`$1` VARCHAR(255)$2 DEFAULT $3',
+            $sql
+        );
+
+        // REAL -> DOUBLE
+        $sql = preg_replace('/\bREAL\b/i', 'DOUBLE', $sql);
+
+        // INSERT OR IGNORE -> INSERT IGNORE
+        $sql = preg_replace('/INSERT\s+OR\s+IGNORE\s+INTO/i', 'INSERT IGNORE INTO', $sql);
+
+        // Add ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 at end of CREATE TABLE
+        if (stripos($sql, 'CREATE TABLE') !== false && !preg_match('/ENGINE\s*=/i', $sql)) {
+            $sql = preg_replace('/\)\s*$/', ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci', trim($sql));
+        }
+
+        return $sql;
+    }
+
+    private static function execDdl(PDO $db, string $sql): void {
+        $driver = $db->getAttribute(PDO::ATTR_DRIVER_NAME);
+        if ($driver === 'mysql') {
+            $sql = self::sqliteToMysql($sql);
+        }
+        $db->exec($sql);
+    }
+
     /**
      * Idempotent Database Setup
      * Creates all required tables, indices, and initial production seed data
      */
     public static function setupDatabase(): void {
         $db = self::getConnection();
+        $isMysql = ($db->getAttribute(PDO::ATTR_DRIVER_NAME) === 'mysql');
+        if ($isMysql) {
+            $db->exec("SET FOREIGN_KEY_CHECKS = 0;");
+        }
 
         // 1. Companies Table
-        $db->exec("CREATE TABLE IF NOT EXISTS companies (
+        self::execDdl($db, "CREATE TABLE IF NOT EXISTS companies (
             CompanyID INTEGER PRIMARY KEY AUTOINCREMENT,
             CompanyName TEXT NOT NULL,
             LegalName TEXT,
@@ -99,7 +175,7 @@ class Database {
         )");
 
         // 2. Users Table
-        $db->exec("CREATE TABLE IF NOT EXISTS users (
+        self::execDdl($db, "CREATE TABLE IF NOT EXISTS users (
             UserID INTEGER PRIMARY KEY AUTOINCREMENT,
             Username TEXT UNIQUE NOT NULL,
             PasswordHash TEXT NOT NULL,
@@ -123,7 +199,7 @@ class Database {
         )");
 
         // 3. Roles Table
-        $db->exec("CREATE TABLE IF NOT EXISTS roles (
+        self::execDdl($db, "CREATE TABLE IF NOT EXISTS roles (
             RoleID INTEGER PRIMARY KEY AUTOINCREMENT,
             RoleName TEXT UNIQUE NOT NULL,
             Description TEXT,
@@ -133,7 +209,7 @@ class Database {
         )");
 
         // 4. Permissions Table
-        $db->exec("CREATE TABLE IF NOT EXISTS permissions (
+        self::execDdl($db, "CREATE TABLE IF NOT EXISTS permissions (
             PermissionID INTEGER PRIMARY KEY AUTOINCREMENT,
             RoleName TEXT NOT NULL,
             ModuleName TEXT NOT NULL,
@@ -148,7 +224,7 @@ class Database {
         )");
 
         // 5. Sessions Table
-        $db->exec("CREATE TABLE IF NOT EXISTS sessions (
+        self::execDdl($db, "CREATE TABLE IF NOT EXISTS sessions (
             SessionID INTEGER PRIMARY KEY AUTOINCREMENT,
             Token TEXT UNIQUE NOT NULL,
             UserID INTEGER NOT NULL,
@@ -160,7 +236,7 @@ class Database {
         )");
 
         // 6. Audit Log Table
-        $db->exec("CREATE TABLE IF NOT EXISTS audit_logs (
+        self::execDdl($db, "CREATE TABLE IF NOT EXISTS audit_logs (
             AuditID INTEGER PRIMARY KEY AUTOINCREMENT,
             Timestamp TEXT NOT NULL,
             UserID INTEGER,
@@ -176,7 +252,7 @@ class Database {
         )");
 
         // 7. Settings Table
-        $db->exec("CREATE TABLE IF NOT EXISTS settings (
+        self::execDdl($db, "CREATE TABLE IF NOT EXISTS settings (
             SettingKey TEXT PRIMARY KEY,
             SettingValue TEXT,
             Category TEXT,
@@ -185,7 +261,7 @@ class Database {
         )");
 
         // 8. Item Rates Table
-        $db->exec("CREATE TABLE IF NOT EXISTS item_rates (
+        self::execDdl($db, "CREATE TABLE IF NOT EXISTS item_rates (
             ItemID INTEGER PRIMARY KEY AUTOINCREMENT,
             ItemCode TEXT UNIQUE NOT NULL,
             ItemName TEXT NOT NULL,
@@ -207,7 +283,7 @@ class Database {
         )");
 
         // 9. Rate History Table
-        $db->exec("CREATE TABLE IF NOT EXISTS rate_history (
+        self::execDdl($db, "CREATE TABLE IF NOT EXISTS rate_history (
             HistoryID INTEGER PRIMARY KEY AUTOINCREMENT,
             ItemID INTEGER NOT NULL,
             ItemCode TEXT NOT NULL,
@@ -222,7 +298,7 @@ class Database {
         )");
 
         // 10. Customers Table
-        $db->exec("CREATE TABLE IF NOT EXISTS customers (
+        self::execDdl($db, "CREATE TABLE IF NOT EXISTS customers (
             CustomerID INTEGER PRIMARY KEY AUTOINCREMENT,
             CustomerCode TEXT UNIQUE NOT NULL,
             Name TEXT NOT NULL,
@@ -255,7 +331,7 @@ class Database {
         )");
 
         // 11. Customer Interactions & CRM
-        $db->exec("CREATE TABLE IF NOT EXISTS customer_interactions (
+        self::execDdl($db, "CREATE TABLE IF NOT EXISTS customer_interactions (
             InteractionID INTEGER PRIMARY KEY AUTOINCREMENT,
             CustomerID INTEGER NOT NULL,
             Type TEXT NOT NULL,
@@ -265,7 +341,7 @@ class Database {
         )");
 
         // 12. Followups Table
-        $db->exec("CREATE TABLE IF NOT EXISTS followups (
+        self::execDdl($db, "CREATE TABLE IF NOT EXISTS followups (
             FollowupID INTEGER PRIMARY KEY AUTOINCREMENT,
             CustomerID INTEGER NOT NULL,
             DueDate TEXT NOT NULL,
@@ -280,7 +356,7 @@ class Database {
         )");
 
         // 13. Bills Table
-        $db->exec("CREATE TABLE IF NOT EXISTS bills (
+        self::execDdl($db, "CREATE TABLE IF NOT EXISTS bills (
             BillID INTEGER PRIMARY KEY AUTOINCREMENT,
             BillNumber TEXT UNIQUE NOT NULL,
             BillDate TEXT NOT NULL,
@@ -314,7 +390,7 @@ class Database {
         )");
 
         // 14. Bill Items Table
-        $db->exec("CREATE TABLE IF NOT EXISTS bill_items (
+        self::execDdl($db, "CREATE TABLE IF NOT EXISTS bill_items (
             BillItemID INTEGER PRIMARY KEY AUTOINCREMENT,
             BillID INTEGER NOT NULL,
             ItemID INTEGER NOT NULL,
@@ -332,7 +408,7 @@ class Database {
         )");
 
         // 15. Bill Payments Table
-        $db->exec("CREATE TABLE IF NOT EXISTS bill_payments (
+        self::execDdl($db, "CREATE TABLE IF NOT EXISTS bill_payments (
             PaymentID INTEGER PRIMARY KEY AUTOINCREMENT,
             BillID INTEGER NOT NULL,
             PaymentMode TEXT NOT NULL,
@@ -346,7 +422,7 @@ class Database {
         )");
 
         // 16. Customer Dues Ledger Table
-        $db->exec("CREATE TABLE IF NOT EXISTS customer_dues (
+        self::execDdl($db, "CREATE TABLE IF NOT EXISTS customer_dues (
             DueID INTEGER PRIMARY KEY AUTOINCREMENT,
             DueNumber TEXT UNIQUE NOT NULL,
             CustomerID INTEGER NOT NULL,
@@ -370,7 +446,7 @@ class Database {
         )");
 
         // 17. Due Payments Table
-        $db->exec("CREATE TABLE IF NOT EXISTS due_payments (
+        self::execDdl($db, "CREATE TABLE IF NOT EXISTS due_payments (
             ReceiptID INTEGER PRIMARY KEY AUTOINCREMENT,
             ReceiptNumber TEXT UNIQUE NOT NULL,
             DueID INTEGER NOT NULL,
@@ -387,7 +463,7 @@ class Database {
         )");
 
         // 18. Employees Master Table
-        $db->exec("CREATE TABLE IF NOT EXISTS employees (
+        self::execDdl($db, "CREATE TABLE IF NOT EXISTS employees (
             EmpID INTEGER PRIMARY KEY AUTOINCREMENT,
             EmpCode TEXT UNIQUE NOT NULL,
             Name TEXT NOT NULL,
@@ -412,11 +488,11 @@ class Database {
         )");
 
         try {
-            $db->exec("ALTER TABLE employees ADD COLUMN Photo TEXT");
+            self::execDdl($db, "ALTER TABLE employees ADD COLUMN Photo TEXT");
         } catch (Exception $e) {}
 
         // 18b. Employee KYC & Multi-Type Documents Table
-        $db->exec("CREATE TABLE IF NOT EXISTS employee_documents (
+        self::execDdl($db, "CREATE TABLE IF NOT EXISTS employee_documents (
             DocID INTEGER PRIMARY KEY AUTOINCREMENT,
             EmpID INTEGER NOT NULL,
             DocType TEXT NOT NULL,
@@ -433,7 +509,7 @@ class Database {
         )");
 
         // 19. Attendance Table
-        $db->exec("CREATE TABLE IF NOT EXISTS attendance (
+        self::execDdl($db, "CREATE TABLE IF NOT EXISTS attendance (
             AttendanceID INTEGER PRIMARY KEY AUTOINCREMENT,
             EmpID INTEGER NOT NULL,
             Date TEXT NOT NULL,
@@ -446,7 +522,7 @@ class Database {
         )");
 
         // 20. Advances Table
-        $db->exec("CREATE TABLE IF NOT EXISTS advances (
+        self::execDdl($db, "CREATE TABLE IF NOT EXISTS advances (
             AdvanceID INTEGER PRIMARY KEY AUTOINCREMENT,
             AdvanceNumber TEXT UNIQUE NOT NULL,
             EmpID INTEGER NOT NULL,
@@ -467,7 +543,7 @@ class Database {
         )");
 
         // 21. Salaries Table
-        $db->exec("CREATE TABLE IF NOT EXISTS salaries (
+        self::execDdl($db, "CREATE TABLE IF NOT EXISTS salaries (
             SalaryID INTEGER PRIMARY KEY AUTOINCREMENT,
             SalaryNumber TEXT UNIQUE NOT NULL,
             EmpID INTEGER NOT NULL,
@@ -494,7 +570,7 @@ class Database {
         )");
 
         // 22. Leaves Table
-        $db->exec("CREATE TABLE IF NOT EXISTS leaves (
+        self::execDdl($db, "CREATE TABLE IF NOT EXISTS leaves (
             LeaveID INTEGER PRIMARY KEY AUTOINCREMENT,
             EmpID INTEGER NOT NULL,
             LeaveType TEXT NOT NULL,
@@ -510,7 +586,7 @@ class Database {
         )");
 
         // 23. Vendors Master Table
-        $db->exec("CREATE TABLE IF NOT EXISTS vendors (
+        self::execDdl($db, "CREATE TABLE IF NOT EXISTS vendors (
             VendorID INTEGER PRIMARY KEY AUTOINCREMENT,
             VendorCode TEXT UNIQUE NOT NULL,
             VendorName TEXT NOT NULL,
@@ -532,7 +608,7 @@ class Database {
         )");
 
         // 24. Purchases Table
-        $db->exec("CREATE TABLE IF NOT EXISTS purchases (
+        self::execDdl($db, "CREATE TABLE IF NOT EXISTS purchases (
             PurchaseID INTEGER PRIMARY KEY AUTOINCREMENT,
             InvoiceNumber TEXT NOT NULL,
             VendorID INTEGER NOT NULL,
@@ -547,7 +623,7 @@ class Database {
         )");
 
         // 25. Purchase Items Table
-        $db->exec("CREATE TABLE IF NOT EXISTS purchase_items (
+        self::execDdl($db, "CREATE TABLE IF NOT EXISTS purchase_items (
             PurchaseItemID INTEGER PRIMARY KEY AUTOINCREMENT,
             PurchaseID INTEGER NOT NULL,
             ItemID INTEGER NOT NULL,
@@ -558,7 +634,7 @@ class Database {
         )");
 
         // 26. Hawker / Delivery Dispatch Table
-        $db->exec("CREATE TABLE IF NOT EXISTS hawker_dispatch (
+        self::execDdl($db, "CREATE TABLE IF NOT EXISTS hawker_dispatch (
             DispatchID INTEGER PRIMARY KEY AUTOINCREMENT,
             DispatchNumber TEXT UNIQUE NOT NULL,
             Date TEXT NOT NULL,
@@ -587,20 +663,20 @@ class Database {
         )");
 
         try {
-            $db->exec("ALTER TABLE hawker_dispatch ADD COLUMN HPPayDeposited REAL DEFAULT 0.0");
+            self::execDdl($db, "ALTER TABLE hawker_dispatch ADD COLUMN HPPayDeposited REAL DEFAULT 0.0");
         } catch (Exception $e) {}
         try {
-            $db->exec("ALTER TABLE hawker_dispatch ADD COLUMN HPPayConsumerCount INTEGER DEFAULT 0");
+            self::execDdl($db, "ALTER TABLE hawker_dispatch ADD COLUMN HPPayConsumerCount INTEGER DEFAULT 0");
         } catch (Exception $e) {}
         try {
-            $db->exec("ALTER TABLE hawker_dispatch ADD COLUMN HPPayRate REAL DEFAULT 0.0");
+            self::execDdl($db, "ALTER TABLE hawker_dispatch ADD COLUMN HPPayRate REAL DEFAULT 0.0");
         } catch (Exception $e) {}
         try {
-            $db->exec("ALTER TABLE hawker_dispatch ADD COLUMN HPPayConsumerDetails TEXT");
+            self::execDdl($db, "ALTER TABLE hawker_dispatch ADD COLUMN HPPayConsumerDetails TEXT");
         } catch (Exception $e) {}
 
         // 26b. HP Pay Consumer Transaction Ledger Table
-        $db->exec("CREATE TABLE IF NOT EXISTS hp_pay_transactions (
+        self::execDdl($db, "CREATE TABLE IF NOT EXISTS hp_pay_transactions (
             TxnID INTEGER PRIMARY KEY AUTOINCREMENT,
             Date TEXT NOT NULL,
             DispatchID INTEGER,
@@ -615,7 +691,7 @@ class Database {
         )");
 
         // 26c. Plant Bottling Truck Receipts & Empty Return Table
-        $db->exec("CREATE TABLE IF NOT EXISTS plant_truck_receipts (
+        self::execDdl($db, "CREATE TABLE IF NOT EXISTS plant_truck_receipts (
             ReceiptID INTEGER PRIMARY KEY AUTOINCREMENT,
             ReceiptNumber TEXT UNIQUE NOT NULL,
             ChallanNumber TEXT NOT NULL,
@@ -633,7 +709,7 @@ class Database {
         )");
 
         // 26d. HPCL Cylinder Return & EMR Portal Records Table
-        $db->exec("CREATE TABLE IF NOT EXISTS hpcl_cylinder_returns (
+        self::execDdl($db, "CREATE TABLE IF NOT EXISTS hpcl_cylinder_returns (
             ReturnID INTEGER PRIMARY KEY AUTOINCREMENT,
             ReturnNumber TEXT UNIQUE NOT NULL,
             InvoiceNumber TEXT,
@@ -649,7 +725,7 @@ class Database {
         )");
 
         // 27. Cylinder Stock Table
-        $db->exec("CREATE TABLE IF NOT EXISTS cylinder_stock (
+        self::execDdl($db, "CREATE TABLE IF NOT EXISTS cylinder_stock (
             StockID INTEGER PRIMARY KEY AUTOINCREMENT,
             Date TEXT NOT NULL,
             CylinderType TEXT NOT NULL,
@@ -676,14 +752,14 @@ class Database {
         )");
 
         try {
-            $db->exec("ALTER TABLE cylinder_stock ADD COLUMN OpeningEmpty INTEGER NOT NULL DEFAULT 0");
+            self::execDdl($db, "ALTER TABLE cylinder_stock ADD COLUMN OpeningEmpty INTEGER NOT NULL DEFAULT 0");
         } catch (Exception $e) {}
         try {
-            $db->exec("ALTER TABLE cylinder_stock ADD COLUMN EMRReceived INTEGER NOT NULL DEFAULT 0");
+            self::execDdl($db, "ALTER TABLE cylinder_stock ADD COLUMN EMRReceived INTEGER NOT NULL DEFAULT 0");
         } catch (Exception $e) {}
 
         // 28. Stock Ledger / Movements Table
-        $db->exec("CREATE TABLE IF NOT EXISTS stock_movements (
+        self::execDdl($db, "CREATE TABLE IF NOT EXISTS stock_movements (
             MovementID INTEGER PRIMARY KEY AUTOINCREMENT,
             Date TEXT NOT NULL,
             CylinderType TEXT NOT NULL,
@@ -697,7 +773,7 @@ class Database {
         )");
 
         // 29. Cashbook Table
-        $db->exec("CREATE TABLE IF NOT EXISTS cashbook (
+        self::execDdl($db, "CREATE TABLE IF NOT EXISTS cashbook (
             CashbookID INTEGER PRIMARY KEY AUTOINCREMENT,
             Date TEXT UNIQUE NOT NULL,
             OpeningCash REAL NOT NULL DEFAULT 0.0,
@@ -730,7 +806,7 @@ class Database {
         )");
 
         // 30. Day Closings Table
-        $db->exec("CREATE TABLE IF NOT EXISTS day_closings (
+        self::execDdl($db, "CREATE TABLE IF NOT EXISTS day_closings (
             ClosingID INTEGER PRIMARY KEY AUTOINCREMENT,
             Date TEXT UNIQUE NOT NULL,
             IsLocked INTEGER DEFAULT 1,
@@ -752,7 +828,7 @@ class Database {
         )");
 
         // 31. Notifications Table
-        $db->exec("CREATE TABLE IF NOT EXISTS notifications (
+        self::execDdl($db, "CREATE TABLE IF NOT EXISTS notifications (
             NotificationID INTEGER PRIMARY KEY AUTOINCREMENT,
             Type TEXT NOT NULL,
             Title TEXT NOT NULL,
@@ -762,7 +838,7 @@ class Database {
         )");
 
         // 32. Archives / Backups Table
-        $db->exec("CREATE TABLE IF NOT EXISTS archives (
+        self::execDdl($db, "CREATE TABLE IF NOT EXISTS archives (
             ArchiveID INTEGER PRIMARY KEY AUTOINCREMENT,
             FileName TEXT NOT NULL,
             FileType TEXT NOT NULL,
@@ -774,7 +850,7 @@ class Database {
         )");
 
         // 33. Security Deposit Return / SV Surrender Table
-        $db->exec("CREATE TABLE IF NOT EXISTS security_refunds (
+        self::execDdl($db, "CREATE TABLE IF NOT EXISTS security_refunds (
             RefundID INTEGER PRIMARY KEY AUTOINCREMENT,
             RefundNumber TEXT UNIQUE NOT NULL,
             Date TEXT NOT NULL,
@@ -800,13 +876,13 @@ class Database {
         )");
 
         try {
-            $db->exec("ALTER TABLE security_refunds ADD COLUMN CylinderDepositAmount REAL DEFAULT 0.0");
+            self::execDdl($db, "ALTER TABLE security_refunds ADD COLUMN CylinderDepositAmount REAL DEFAULT 0.0");
         } catch (Exception $e) {}
         try {
-            $db->exec("ALTER TABLE security_refunds ADD COLUMN RegulatorDepositAmount REAL DEFAULT 0.0");
+            self::execDdl($db, "ALTER TABLE security_refunds ADD COLUMN RegulatorDepositAmount REAL DEFAULT 0.0");
         } catch (Exception $e) {}
         try {
-            $db->exec("ALTER TABLE security_refunds ADD COLUMN OriginalSVEra TEXT DEFAULT 'CURRENT'");
+            self::execDdl($db, "ALTER TABLE security_refunds ADD COLUMN OriginalSVEra TEXT DEFAULT 'CURRENT'");
         } catch (Exception $e) {}
 
         // --- SEED INITIAL DATA SAFELY ---
@@ -815,6 +891,7 @@ class Database {
 
     private static function seedInitialData(PDO $db): void {
         $now = date('Y-m-d H:i:s');
+        $insertIgnore = ($db->getAttribute(PDO::ATTR_DRIVER_NAME) === 'mysql') ? 'INSERT IGNORE' : 'INSERT OR IGNORE';
 
         // 1. Seed Default Company Profile
         $stmt = $db->query("SELECT COUNT(*) FROM companies");
@@ -862,26 +939,26 @@ class Database {
 
         foreach ($modules as $mod) {
             // Admin: Full permissions
-            $db->exec("INSERT OR IGNORE INTO permissions (RoleName, ModuleName, CanCreate, CanRead, CanUpdate, CanDelete, CanExport, CanPrint, CanApprove)
+            $db->exec("$insertIgnore INTO permissions (RoleName, ModuleName, CanCreate, CanRead, CanUpdate, CanDelete, CanExport, CanPrint, CanApprove)
                 VALUES ('ADMIN', '$mod', 1, 1, 1, 1, 1, 1, 1)");
 
             // Manager: All except admin-specific modules
             $isMgmt = in_array($mod, ['users', 'permissions', 'company', 'settings', 'audit']);
-            $db->exec("INSERT OR IGNORE INTO permissions (RoleName, ModuleName, CanCreate, CanRead, CanUpdate, CanDelete, CanExport, CanPrint, CanApprove)
+            $db->exec("$insertIgnore INTO permissions (RoleName, ModuleName, CanCreate, CanRead, CanUpdate, CanDelete, CanExport, CanPrint, CanApprove)
                 VALUES ('MANAGER', '$mod', " . ($isMgmt ? 0 : 1) . ", 1, " . ($isMgmt ? 0 : 1) . ", 0, 1, 1, 1)");
 
             // Cashier: Billing, Customers, Dues, Cashbook, Print
             $isCashier = in_array($mod, ['dashboard', 'billing', 'customers', 'dues', 'cashbook', 'items', 'reports', 'rojnamcha']);
-            $db->exec("INSERT OR IGNORE INTO permissions (RoleName, ModuleName, CanCreate, CanRead, CanUpdate, CanDelete, CanExport, CanPrint, CanApprove)
+            $db->exec("$insertIgnore INTO permissions (RoleName, ModuleName, CanCreate, CanRead, CanUpdate, CanDelete, CanExport, CanPrint, CanApprove)
                 VALUES ('CASHIER', '$mod', " . ($isCashier ? 1 : 0) . ", " . ($isCashier ? 1 : 0) . ", " . ($isCashier ? 1 : 0) . ", 0, 0, 1, 0)");
 
             // Delivery: Dispatch, Customers read, Attendance read
             $isDelivery = in_array($mod, ['dashboard', 'dispatch', 'customers', 'attendance']);
-            $db->exec("INSERT OR IGNORE INTO permissions (RoleName, ModuleName, CanCreate, CanRead, CanUpdate, CanDelete, CanExport, CanPrint, CanApprove)
+            $db->exec("$insertIgnore INTO permissions (RoleName, ModuleName, CanCreate, CanRead, CanUpdate, CanDelete, CanExport, CanPrint, CanApprove)
                 VALUES ('DELIVERY', '$mod', " . ($mod === 'dispatch' ? 1 : 0) . ", " . ($isDelivery ? 1 : 0) . ", 0, 0, 0, 1, 0)");
 
             // Viewer: Read-only
-            $db->exec("INSERT OR IGNORE INTO permissions (RoleName, ModuleName, CanCreate, CanRead, CanUpdate, CanDelete, CanExport, CanPrint, CanApprove)
+            $db->exec("$insertIgnore INTO permissions (RoleName, ModuleName, CanCreate, CanRead, CanUpdate, CanDelete, CanExport, CanPrint, CanApprove)
                 VALUES ('VIEWER', '$mod', 0, 1, 0, 0, 1, 1, 0)");
         }
 

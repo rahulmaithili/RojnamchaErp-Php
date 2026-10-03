@@ -147,6 +147,7 @@ if (isset($_GET['action']) || isset($_POST['action'])) {
 
             // Execute schema adapted for MySQL
             require_once __DIR__ . '/db.php';
+            Database::setConnection($dbPdo);
             Database::setupDatabase();
 
             $tables = $dbPdo->query("SHOW TABLES")->fetchAll(PDO::FETCH_COLUMN);
@@ -281,38 +282,25 @@ if (isset($_GET['action']) || isset($_POST['action'])) {
 
       <!-- Database Options Tabs -->
       <div class="tabs">
-        <button type="button" class="tab-btn active" data-tab="sqlite-tab">
-          <i class="fa-solid fa-bolt"></i> 1-Click SQLite (Recommended)
-        </button>
-        <button type="button" class="tab-btn" data-tab="mysql-tab">
+        <button type="button" class="tab-btn active" data-tab="mysql-tab">
           <i class="fa-solid fa-database"></i> InfinityFree MySQL (vPanel)
         </button>
-      </div>
-
-      <!-- Tab 1: SQLite 1-Click -->
-      <div id="sqlite-tab" class="tab-panel active">
-        <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:18px; margin-bottom:18px;">
-          <h4 style="font-size:14px; font-weight:800; color:#0f172a; margin-bottom:6px;">
-            <i class="fa-solid fa-check-double" style="color:var(--success);"></i> Zero Configuration Setup
-          </h4>
-          <p style="font-size:12.5px; color:#475569; line-height:1.5;">
-            SQLite requires <strong>no username, password, or host</strong>. The database will automatically be generated in <code>data/erp_database.sqlite</code> with enterprise schema, HPCL items, and default administrator credentials.
-          </p>
-        </div>
-        <button type="button" id="btn-run-sqlite" class="btn btn-primary" style="width:100%; font-size:14px; padding:13px;">
-          <i class="fa-solid fa-play"></i> Run 1-Click SQLite Auto Setup Now
+        <button type="button" class="tab-btn" data-tab="sqlite-tab">
+          <i class="fa-solid fa-bolt"></i> 1-Click SQLite (Alternative)
         </button>
       </div>
 
-      <!-- Tab 2: MySQL -->
-      <div id="mysql-tab" class="tab-panel">
-        <p style="font-size:12px; color:#64748b; margin-bottom:14px;">
-          Copy your free MySQL credentials from InfinityFree <strong>vPanel &gt; MySQL Databases</strong>:
-        </p>
+      <!-- Tab 1: MySQL (Default) -->
+      <div id="mysql-tab" class="tab-panel active">
+        <div style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; padding:14px; margin-bottom:14px;">
+          <p style="font-size:12.5px; color:#166534; font-weight:600;">
+            <i class="fa-solid fa-circle-check"></i> Your InfinityFree MySQL credentials are pre-filled below. Just click the button!
+          </p>
+        </div>
         <div style="display:grid; grid-template-columns: 2fr 1fr; gap:12px;">
           <div class="form-group">
             <label>MySQL Host Name *</label>
-            <input type="text" id="my-host" class="form-control" placeholder="e.g. sql300.infinityfree.com" value="127.0.0.1">
+            <input type="text" id="my-host" class="form-control" placeholder="e.g. sql101.infinityfree.com" value="sql101.infinityfree.com">
           </div>
           <div class="form-group">
             <label>Port</label>
@@ -321,20 +309,35 @@ if (isset($_GET['action']) || isset($_POST['action'])) {
         </div>
         <div class="form-group">
           <label>Database Name *</label>
-          <input type="text" id="my-dbname" class="form-control" placeholder="e.g. epiz_12345678_gas">
+          <input type="text" id="my-dbname" class="form-control" placeholder="e.g. if0_42675336_Rojnamcha" value="if0_42675336_Rojnamcha">
         </div>
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
           <div class="form-group">
             <label>Username *</label>
-            <input type="text" id="my-user" class="form-control" placeholder="e.g. epiz_12345678">
+            <input type="text" id="my-user" class="form-control" placeholder="e.g. if0_42675336" value="if0_42675336">
           </div>
           <div class="form-group">
             <label>Password *</label>
-            <input type="password" id="my-pass" class="form-control" placeholder="vPanel Password">
+            <input type="password" id="my-pass" class="form-control" placeholder="vPanel Password" value="rahulJulee">
           </div>
         </div>
         <button type="button" id="btn-run-mysql" class="btn btn-primary" style="width:100%; font-size:14px; padding:13px;">
           <i class="fa-solid fa-plug"></i> Connect MySQL &amp; Auto Setup Tables
+        </button>
+      </div>
+
+      <!-- Tab 2: SQLite Alternative -->
+      <div id="sqlite-tab" class="tab-panel">
+        <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:18px; margin-bottom:18px;">
+          <h4 style="font-size:14px; font-weight:800; color:#0f172a; margin-bottom:6px;">
+            <i class="fa-solid fa-check-double" style="color:var(--success);"></i> Zero Configuration Setup
+          </h4>
+          <p style="font-size:12.5px; color:#475569; line-height:1.5;">
+            SQLite stores data in a file in <code>data/erp_database.sqlite</code> without requiring a separate database server.
+          </p>
+        </div>
+        <button type="button" id="btn-run-sqlite" class="btn btn-primary" style="width:100%; font-size:14px; padding:13px;">
+          <i class="fa-solid fa-play"></i> Run 1-Click SQLite Auto Setup
         </button>
       </div>
 
