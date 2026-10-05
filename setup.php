@@ -406,7 +406,7 @@ if (isset($_GET['action']) || isset($_POST['action'])) {
         <div class="cred-box">
           <div style="font-weight:700; color:#166534; margin-bottom:4px;">DEFAULT ADMIN LOGIN CREDENTIALS:</div>
           <div><strong>Username:</strong> <code style="background:#f1f5f9; padding:2px 6px; border-radius:3px;">admin</code></div>
-          <div><strong>Password:</strong> <code style="background:#f1f5f9; padding:2px 6px; border-radius:3px;">admin123</code></div>
+          <div><strong>Password:</strong> <code style="background:#f1f5f9; padding:2px 6px; border-radius:3px;">admin123</code> <span style="font-size:11.5px; color:#64748b;">(or <code>Admin@12345</code>)</span></div>
         </div>
 
         <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:16px;">
