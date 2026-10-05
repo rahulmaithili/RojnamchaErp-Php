@@ -335,7 +335,7 @@ if (isset($_GET['action']) || isset($_POST['action'])) {
       <!-- Database Options Tabs -->
       <div class="tabs">
         <button type="button" class="tab-btn active" data-tab="mysql-tab">
-          <i class="fa-solid fa-database"></i> InfinityFree MySQL (vPanel)
+          <i class="fa-solid fa-database"></i> MySQL Database (Local / Cloud)
         </button>
         <button type="button" class="tab-btn" data-tab="sqlite-tab">
           <i class="fa-solid fa-bolt"></i> 1-Click SQLite (Alternative)
@@ -346,13 +346,13 @@ if (isset($_GET['action']) || isset($_POST['action'])) {
       <div id="mysql-tab" class="tab-panel active">
         <div style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; padding:14px; margin-bottom:14px;">
           <p style="font-size:12.5px; color:#166534; font-weight:600;">
-            <i class="fa-solid fa-circle-check"></i> Your InfinityFree MySQL credentials are pre-filled below. Just click the button!
+            <i class="fa-solid fa-circle-check"></i> Local MySQL (XAMPP / PC) credentials pre-filled below. Just click the button!
           </p>
         </div>
         <div style="display:grid; grid-template-columns: 2fr 1fr; gap:12px;">
           <div class="form-group">
             <label>MySQL Host Name *</label>
-            <input type="text" id="my-host" class="form-control" placeholder="e.g. sql101.infinityfree.com" value="sql101.infinityfree.com">
+            <input type="text" id="my-host" class="form-control" placeholder="e.g. localhost or 127.0.0.1" value="localhost">
           </div>
           <div class="form-group">
             <label>Port</label>
@@ -361,16 +361,16 @@ if (isset($_GET['action']) || isset($_POST['action'])) {
         </div>
         <div class="form-group">
           <label>Database Name *</label>
-          <input type="text" id="my-dbname" class="form-control" placeholder="e.g. if0_42675336_Rojnamcha" value="if0_42675336_Rojnamcha">
+          <input type="text" id="my-dbname" class="form-control" placeholder="e.g. rojnamcha" value="rojnamcha">
         </div>
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
           <div class="form-group">
             <label>Username *</label>
-            <input type="text" id="my-user" class="form-control" placeholder="e.g. if0_42675336" value="if0_42675336">
+            <input type="text" id="my-user" class="form-control" placeholder="e.g. root" value="root">
           </div>
           <div class="form-group">
-            <label>Password *</label>
-            <input type="password" id="my-pass" class="form-control" placeholder="vPanel Password" value="rahulJulee">
+            <label>Password</label>
+            <input type="password" id="my-pass" class="form-control" placeholder="Leave blank if no password" value="">
           </div>
         </div>
         <button type="button" id="btn-run-mysql" class="btn btn-primary" style="width:100%; font-size:14px; padding:13px;">
