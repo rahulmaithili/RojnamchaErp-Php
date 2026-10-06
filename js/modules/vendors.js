@@ -631,15 +631,6 @@ export const vendorModule = {
     }
   },
 
-    if (data) {
-      const res = await api('savePurchase', data, { loaderMessage: 'Saving purchase receipt...' });
-      if (res.ok) {
-        ui.success(res.message || 'Purchase invoice recorded successfully.');
-        this.loadVendors();
-      }
-    }
-  },
-
   viewVendorDetails(v) {
     const html = `
       <div style="display:flex; flex-direction:column; gap:16px;">
