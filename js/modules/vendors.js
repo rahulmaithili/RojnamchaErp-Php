@@ -390,18 +390,18 @@ export const vendorModule = {
           </div>
 
           <!-- Expansive Landscape Items Table -->
-          <div style="border:1px solid var(--border); border-radius:6px; background:#fff; overflow:hidden;">
-            <table class="table table-sm" style="margin:0; font-size:12px; width:100%;">
+          <div style="border:1px solid #cbd5e1; border-radius:6px; background:#fff; overflow-x:auto; width:100%; -webkit-overflow-scrolling:touch; box-shadow:inset 0 1px 3px rgba(0,0,0,0.03);">
+            <table class="table table-sm" style="margin:0; font-size:12px; width:100%; min-width:850px; border-collapse:collapse;">
               <thead>
-                <tr style="background:#e2e8f0;">
-                  <th style="min-width:200px;">Product / Item Name</th>
-                  <th style="width:110px;">Category</th>
-                  <th style="width:120px; text-align:center; color:var(--color-success); font-weight:700;">Filled Received (+Stock)</th>
-                  <th style="width:120px; text-align:center; color:var(--color-info); font-weight:700;">Sound Empty Return (-Empty)</th>
-                  <th style="width:110px; text-align:center; color:var(--color-danger); font-weight:700;">Defective Return (-Empty)</th>
-                  <th style="width:105px; text-align:right;">Rate (₹)</th>
-                  <th style="width:120px; text-align:right;">Total (₹)</th>
-                  <th style="width:40px; text-align:center;"></th>
+                <tr style="background:#f1f5f9; border-bottom:2px solid #cbd5e1;">
+                  <th style="min-width:180px; padding:9px 10px; font-weight:700; color:#1e293b;">Product / Item</th>
+                  <th style="width:95px; padding:9px 6px; font-weight:700; color:#475569;">Category</th>
+                  <th style="width:110px; text-align:center; padding:9px 4px; color:#15803d; font-weight:700;">Filled (+Stock)</th>
+                  <th style="width:110px; text-align:center; padding:9px 4px; color:#0284c7; font-weight:700;">Sound Empty</th>
+                  <th style="width:105px; text-align:center; padding:9px 4px; color:#b91c1c; font-weight:700;">Defective Return</th>
+                  <th style="width:105px; text-align:right; padding:9px 6px; font-weight:700; color:#1e293b;">Rate (₹)</th>
+                  <th style="width:115px; text-align:right; padding:9px 8px; font-weight:700; color:#1e293b;">Total (₹)</th>
+                  <th style="width:40px; text-align:center; padding:9px 4px;"></th>
                 </tr>
               </thead>
               <tbody id="pm-items-table-body">
@@ -448,30 +448,30 @@ export const vendorModule = {
           const isCyl = (it.Category === 'CYLINDER') || Boolean(it.CylinderType);
           return `
             <tr>
-              <td><strong>${utils.escapeHtml(it.ItemName)}</strong></td>
-              <td><span class="badge ${isCyl ? 'badge-primary' : 'badge-info'}" style="font-size:10px;">${it.Category || 'EQUIPMENT'}</span></td>
-              <td class="text-center">
-                <input type="number" class="form-control form-control-sm text-center num-font p-in-f" data-idx="${idx}" value="${it.FilledQty}" min="0" style="width:85px; margin:auto; font-weight:700;">
+              <td style="padding:8px 10px; vertical-align:middle;"><strong>${utils.escapeHtml(it.ItemName)}</strong></td>
+              <td style="padding:8px 6px; vertical-align:middle;"><span class="badge ${isCyl ? 'badge-primary' : 'badge-info'}" style="font-size:10px;">${it.Category || 'EQUIPMENT'}</span></td>
+              <td class="text-center" style="padding:6px 4px; vertical-align:middle;">
+                <input type="number" class="form-control form-control-sm text-center num-font p-in-f" data-idx="${idx}" value="${it.FilledQty}" min="0" style="width:75px; padding:4px 6px; margin:auto; font-weight:700;">
               </td>
-              <td class="text-center">
+              <td class="text-center" style="padding:6px 4px; vertical-align:middle;">
                 ${isCyl ? `
-                  <input type="number" class="form-control form-control-sm text-center num-font p-in-e" data-idx="${idx}" value="${it.EmptyQty}" min="0" style="width:85px; margin:auto;">
+                  <input type="number" class="form-control form-control-sm text-center num-font p-in-e" data-idx="${idx}" value="${it.EmptyQty}" min="0" style="width:75px; padding:4px 6px; margin:auto;">
                 ` : `<span style="color:#94a3b8; font-weight:600;">—</span>`}
               </td>
-              <td class="text-center">
+              <td class="text-center" style="padding:6px 4px; vertical-align:middle;">
                 ${isCyl ? `
-                  <input type="number" class="form-control form-control-sm text-center num-font p-in-d" data-idx="${idx}" value="${it.DefectiveQty}" min="0" style="width:80px; margin:auto;">
+                  <input type="number" class="form-control form-control-sm text-center num-font p-in-d" data-idx="${idx}" value="${it.DefectiveQty}" min="0" style="width:70px; padding:4px 6px; margin:auto; color:#b91c1c; font-weight:600;">
                 ` : `<span style="color:#94a3b8; font-weight:600;">—</span>`}
               </td>
-              <td class="text-right">
-                <input type="number" class="form-control form-control-sm text-right num-font p-in-r" data-idx="${idx}" value="${it.Rate}" min="0" step="any" style="width:95px; margin-left:auto;">
+              <td class="text-right" style="padding:6px 6px; vertical-align:middle;">
+                <input type="number" class="form-control form-control-sm text-right num-font p-in-r" data-idx="${idx}" value="${it.Rate}" min="0" step="any" style="width:85px; padding:4px 6px; margin-left:auto;">
               </td>
-              <td class="text-right num-font" style="font-weight:700; vertical-align:middle;">
+              <td class="text-right num-font" style="font-weight:700; vertical-align:middle; padding:8px 8px; white-space:nowrap;">
                 ${utils.formatCurrency(it.Total)}
               </td>
-              <td class="text-center" style="vertical-align:middle;">
-                <button type="button" class="btn btn-outline btn-sm p-in-del" data-idx="${idx}" style="color:var(--color-danger); border:none; padding:2px 6px;">
-                  <i class="fa-solid fa-xmark"></i>
+              <td class="text-center" style="vertical-align:middle; padding:6px 4px;">
+                <button type="button" class="btn btn-outline btn-sm p-in-del" data-idx="${idx}" style="color:var(--color-danger); border:none; padding:4px 8px; cursor:pointer;" title="Remove row">
+                  <i class="fa-solid fa-trash-can"></i>
                 </button>
               </td>
             </tr>
@@ -620,7 +620,7 @@ export const vendorModule = {
         CylinderItems: cylItems,
         items: invoiceItems
       };
-    }, { maxWidth: '1080px' });
+    }, { maxWidth: '1180px', width: '96vw' });
 
     if (data) {
       const res = await api('savePurchase', data, { loaderMessage: 'Saving purchase receipt...' });

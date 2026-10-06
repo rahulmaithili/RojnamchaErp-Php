@@ -160,7 +160,8 @@ export const ui = {
 
       const modalContent = modal.querySelector('.modal-content');
       if (modalContent) {
-        modalContent.style.maxWidth = options.maxWidth || '680px';
+        modalContent.style.setProperty('max-width', options.maxWidth || '680px', 'important');
+        modalContent.style.setProperty('width', options.width || (options.maxWidth ? '95vw' : '95%'), 'important');
       }
 
       titleEl.innerHTML = `<i class="fa-solid ${icon}"></i> ${title}`;
@@ -171,7 +172,12 @@ export const ui = {
       const cleanup = () => {
         if (isClosed) return;
         isClosed = true;
-        if (modalContent) modalContent.style.maxWidth = '680px';
+        if (modalContent) {
+          modalContent.style.removeProperty('max-width');
+          modalContent.style.removeProperty('width');
+          modalContent.style.maxWidth = '680px';
+          modalContent.style.width = '95%';
+        }
         modal.style.display = 'none';
         modal.removeEventListener('click', onBackdropClick);
         document.removeEventListener('keydown', onKeyDown);
