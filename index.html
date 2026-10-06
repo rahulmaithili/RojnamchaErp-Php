@@ -462,29 +462,5 @@
   <!-- Application Bootstrap -->
   <script type="module" src="js/app.js"></script>
 
-  <!-- Asset Loading Watchdog (Prevents silent blank white screens) -->
-  <script>
-    window.addEventListener('DOMContentLoaded', function () {
-      setTimeout(function () {
-        var auth = document.getElementById('auth-shell');
-        var app = document.getElementById('app-shell');
-        var authHidden = !auth || auth.style.display === 'none';
-        var appHidden = !app || app.style.display === 'none';
-        if (authHidden && appHidden && !document.getElementById('render-watchdog-alert')) {
-          var alertBox = document.createElement('div');
-          alertBox.id = 'render-watchdog-alert';
-          alertBox.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);max-width:560px;width:92%;background:#fff;border:2px solid #ef4444;border-radius:12px;padding:24px;box-shadow:0 20px 40px rgba(0,0,0,0.15);font-family:system-ui,-apple-system,sans-serif;z-index:9999999;text-align:center;color:#0f172a;';
-          alertBox.innerHTML = '<div style="font-size:32px;margin-bottom:8px;">⚠️</div>' +
-            '<h3 style="margin:0 0 8px;font-size:17px;font-weight:800;color:#b91c1c;">Assets (js/app.js) Not Loaded</h3>' +
-            '<p style="margin:0 0 16px;font-size:13px;color:#475569;line-height:1.5;">The web page loaded, but browser could not find <code>js/app.js</code> or <code>css/</code> files. Please ensure you uploaded the <code>js/</code> folder to your web host.</p>' +
-            '<div style="display:flex;gap:8px;justify-content:center;">' +
-            '<a href="setup.php" style="background:#0284c7;color:#fff;padding:9px 18px;border-radius:6px;font-size:13px;font-weight:700;text-decoration:none;">Open Setup Wizard</a>' +
-            '<a href="index.php?diag=1" style="background:#f1f5f9;color:#334155;border:1px solid #cbd5e1;padding:9px 18px;border-radius:6px;font-size:13px;font-weight:700;text-decoration:none;">Check Server Files</a>' +
-            '</div>';
-          document.body.appendChild(alertBox);
-        }
-      }, 2500);
-    });
-  </script>
 </body>
 </html>
